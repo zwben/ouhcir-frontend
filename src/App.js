@@ -7,7 +7,7 @@ function App() {
   
   
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row font-inter">
         <Navbar/>
         <Chatbox/>
 
