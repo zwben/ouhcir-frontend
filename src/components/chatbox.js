@@ -71,10 +71,15 @@ function ChatBox (){
 
     // TODO: Fix the scrolling
     return(
-        <div className="bg-[#2f4454] flex w-full h-full flex-col" >         
-            <div>{messageComponent}</div>
-            <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
-            <MsgEntry setMessagesArray={setMessagesArray} messagesArray={messagesArray} setPrompt={setPrompt}/>
+        <div className="bg-[#2f4454] flex w-full h-full flex-col " >         
+            {/* <div>{messageComponent}</div> */}
+            <div>
+                <Prompt key={"prompt-" + 2}text='Hello'/> 
+                <Response key={"response-" + 2} text='Hi, I am your AI' isLoading={isLoading}/>
+            </div>
+            <div className='mx-25 absolute bottom-0 left-1/2 mb-8'>
+                <MsgEntry setMessagesArray={setMessagesArray} messagesArray={messagesArray} setPrompt={setPrompt}/>
+            </div>
         </div>
     );
 

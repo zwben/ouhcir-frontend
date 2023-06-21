@@ -1,7 +1,9 @@
 import {useState, useRef} from 'react';
 import Prompt from './prompt';
 import Response from './response';
-import { BsFillSendFill } from 'react-icons/bs';
+import send_message_icon from "../assets/msg_entry/send_message_icon.svg"
+import microphone_icon from "../assets/msg_entry/microphone_icon.svg"
+
 
 
 const MsgEntry = (props) => {
@@ -21,19 +23,22 @@ const MsgEntry = (props) => {
     }
 
     return(
-        <div className="bg-[#3c586e] w-100 h-20 flex m-12 fixed bottom-0 rounded-xl p-1 shadow-md shadow-black" >
-            <textarea className="bg-[#3c586e] focus:outline-none text-white resize-none" 
-                ref={textRef}
-                placeholder="Enter your message here..." name="" id="message" cols="110" rows="10"
-                onKeyDown={(event) => {
-                    if (event.keyCode === 13) {
-                        sendMessage();
-                    }
-                }}>
-            </textarea>
-            <button onClick={sendMessage}>
-                <BsFillSendFill className ='m-2 text-white'/>
-            </button>
+        <div className="" >
+            <div className='rounded-3xl bg-[#3c586e] px-8 py-3 min-h-11 flex flex-grow'>
+                <textarea className="bg-transparent focus:outline-none h-7 text-white resize-none w-full" 
+                        ref={textRef}
+                        placeholder="Type a prompt... "
+                        onKeyDown={(event) => {
+                            if (event.keyCode === 13) {
+                                sendMessage();
+                            }
+                        }}>
+                    </textarea>
+                    <button onClick={sendMessage}>
+                        <img src={microphone_icon}/>
+                    </button>
+            </div>
+
         </div>
     );
 }
