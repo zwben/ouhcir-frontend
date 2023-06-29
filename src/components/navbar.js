@@ -4,7 +4,7 @@ import tick_icon from "../assets/navbar/tick_icon.svg"
 
 
 import { useState, useRef } from "react";
-const Navbar = () => {
+const Navbar = (props) => {
     const [isTaskNameEditable, setIsTaskNameEditable ] = useState(false)
     const [taskName, setTaskName] = useState('Task name')
     const taskNameLabelRef = useRef()
@@ -28,7 +28,10 @@ const Navbar = () => {
                         </button>}
                     </div>
                     <div className="mt-3">
-                        <button className="rounded-md px-4 py-1 bg-[#D9D9D9] text-[#142838]">Modify task</button>
+                        <button 
+                            onClick={()=>props.setShowQuestionaire(true)}
+                            className="rounded-md px-4 py-1 bg-[#D9D9D9] text-[#142838]">Modify task
+                        </button>
                     </div>
                     <div className="flex space-x-3 w-fit mt-16">
                         <img src={star_filled}/>
