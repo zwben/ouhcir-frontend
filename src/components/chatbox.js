@@ -9,27 +9,43 @@ import CommentPopUp from './CommentPopUp';
 
 function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
-
     const [prompt, setPrompt] = useState('')
     const [isLoading, setIsLoading] = useState(true);
-    const [messagesArray, setMessagesArray] = useState([])
+    const [promptResponseArray, setPromptResponseArray] = useState([])
 
+    let messageComponent = []; //A message component includes a message and its respons.
     const bgObj = {"user": "bg-[#3c586e]",
                     "ai": "bg-[#2f4454]"}
 
     window.scrollTo(0, document.documentElement.scrollHeight);
 
+    if(promptResponseArray.length > 0){
+        console.log(promptResponseArray)
+        messageComponent = promptResponseArray.map((message, i)=>{
+        return(
+            <div>
+                <Prompt 
+                    key={"prompt-" + i} text={message.user_message}
+                    setShowCommentPopup={setShowCommentPopup}
+                    bgColor={bgObj.user} profile_image={user_profile} 
+                    /> 
+                <Prompt key={"response-" + i} text={message.gpt_reply}
+                    bgColor = {bgObj.ai}
+                    setShowCommentPopup={setShowCommentPopup} profile_image={ai_profile}
+                    /> 
+            </div>
+        );
+        })
+    }
+
     // TODO: Fix the scrolling
     return(
-        <div className="bg-[#2f4454] flex w-full h-full flex-col " >         
-            {/* <div>{messageComponent}</div> */}
-            <div>
-                <Prompt key={"prompt-" + 2} setShowCommentPopup={setShowCommentPopup} profile_image={user_profile}  bgColor="bg-[#3c586e]" text="Hello there! I hope you're doing well today. How can I be of assistance to you? Whether you have a specific question, need information on a particular topic, or simply want to engage in a conversation, I'm here to help. Feel free to share your thoughts or ask anything you'd like, and I'll provide you with a detailed and informative response."/> 
-                <Prompt key={'prompt-'+2} setShowCommentPopup={setShowCommentPopup} profile_image={ai_profile} text="Hi, I'm your AI" bgColor = {bgObj.ai}/>
-                <Prompt key={'prompt-'+2} setShowCommentPopup={setShowCommentPopup} profile_image={user_profile} text="How are you?" bgColor = {bgObj.user}/>
+        <div className="bg-[#2f4454] flex w-full h-full justify-center " >         
+            <div className='w-full'>
+                {messageComponent}
             </div>
-            <div className='mx-25 absolute bottom-0 left-1/2 mb-8'>
-                <MsgEntry setMessagesArray={setMessagesArray} messagesArray={messagesArray} setPrompt={setPrompt}/>
+            <div className='absolute bottom-0 mb-8 w-[50%]'>
+                <MsgEntry setPromptResponseArray={setPromptResponseArray} promptResponseArray={promptResponseArray} setPrompt={setPrompt}/>
             </div>
             {showCommentPopup && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
                 <CommentPopUp setShowCommentPopup={setShowCommentPopup}/>
