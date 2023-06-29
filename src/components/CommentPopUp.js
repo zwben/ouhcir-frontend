@@ -7,10 +7,10 @@ const CommentPopUp = (props) => {
     const textRef = useRef(null);
 
     const handleTextareaChange = () => {
-    if (textRef.current) {
-        textRef.current.style.height = 'auto'; // Reset the height to auto
-        textRef.current.style.height = `${textRef.current.scrollHeight}px`; // Set the height to the scrollHeight
-    }
+        if (textRef.current) {
+            textRef.current.style.height = 'auto'; // Reset the height to auto
+            textRef.current.style.height = `${textRef.current.scrollHeight}px`; // Set the height to the scrollHeight
+        }
     };
 
     const handleSubmit = () => {
