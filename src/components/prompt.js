@@ -17,7 +17,7 @@ const Prompt = (props) => {
                 <button>
                     <img className='w-7' src={star_icon}/>
                 </button>
-                <button>
+                <button onClick={() => props.setShowCommentPopup(true)}>
                     <img className='w-6' src={comment_icon}/>
                 </button>
                 <button>

@@ -1,6 +1,5 @@
 import {useState, useRef} from 'react';
 import Prompt from './prompt';
-import Response from './response';
 import send_message_icon from "../assets/msg_entry/send_message_icon.svg"
 import microphone_icon from "../assets/msg_entry/microphone_icon.svg"
 
