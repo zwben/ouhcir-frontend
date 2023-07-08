@@ -1,18 +1,17 @@
-import {useState} from 'react';
-import Chatbox from './components/chatbox';
-import Navbar from './components/navbar';
-import React from 'react';
-import Questionnaire from './components/Questionnaire';
+import { useState } from 'react';
+import {Route, Routes } from 'react-router-dom';
+import SignUp from './components/SignUp';
+import Main from './components/Main';
 
 function App() {
-  const [showQuestionaire, setShowQuestionaire] = useState(false)
+  const [showQuestionaire, setShowQuestionaire] = useState(false);
+
   return (
-    <div className="flex flex-row font-inter">
-        <Navbar setShowQuestionaire={setShowQuestionaire}/>
-        <Chatbox/>
-        {showQuestionaire && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
-                <Questionnaire setShowQuestionaire={setShowQuestionaire}/>
-            </div>}
+    <div>
+        <Routes>
+          <Route path="/" element={<Main/>}/>
+          <Route path="/signup" element={<SignUp/>}/>
+        </Routes>
     </div>
   );
 }
