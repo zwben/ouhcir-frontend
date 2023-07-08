@@ -2,6 +2,7 @@ import React, {useState, useEffect } from 'react'
 
 const AuthContext = React.createContext({
     user: {},
+    isLoggedIn: false,
     login: (user) => {},
     logout: () => {},
 })
@@ -17,6 +18,8 @@ export const AuthContextProvider = (props) => {
         }
     }, []);
 
+    const isLoggedIn = !!user 
+
     const login = (user) => {
         setUser(user);
         localStorage.setItem("user", JSON.stringify(user));
@@ -30,7 +33,8 @@ export const AuthContextProvider = (props) => {
     const contextValue = {
         user: user,
         login: login, 
-        logout: logout
+        logout: logout, 
+        isLoggedIn: isLoggedIn
     }
 
     return <AuthContext.Provider value={contextValue}> {props.children} </AuthContext.Provider>

@@ -14,9 +14,10 @@ const Questionnaire = (props) => {
     // labels
     const [taskTopic,setTaskTopic] = useState('')
     const [promptsNum, setPromptsNum] = useState(0) 
-
+    const [otherTaskType, setOtherTaskType] = useState('')
+    const [otherExpectedOutcome, setOtherExpectedOutcome] = useState('')
+    const [other, setOther] = useState('')
     const [taskTypeCheckboxes, setTaskTypeCheckboxes] = useState([]);   // list to containt checkbox values
-    const [otherSelected, setOtherSelected] = useState(false)
 
     const taskTypes = ['Learning a new topic', 'Completing an assignment', 'Writing or generating text', 
                         'Engaging in casual conversation or chat', 'Brainstorming ideas', 'Conducting academic research ideas',
@@ -39,11 +40,9 @@ const Questionnaire = (props) => {
     const handleCheckboxChange = (value) => {
       if (taskTypeCheckboxes.includes(value)) {
         setTaskTypeCheckboxes(taskTypeCheckboxes.filter((item) => item !== value));
-      } else {
+      } else{
+        console.log(value)
         // If other is selected, enable the label for input
-        if (value === 'Other'){
-            setOtherSelected(true)
-        }
         setTaskTypeCheckboxes([...taskTypeCheckboxes, value]);
       }
       console.log(taskTypeCheckboxes)
@@ -54,30 +53,41 @@ const Questionnaire = (props) => {
     };
 
     const handleSubmit = async () => {
-        try {
-            const formData = {
-                'Task topic': taskTopic,
-                'Topic familiarity (basic)': fimiliaritySelectedOption + 1,
-                'Topic familiarity (Prompt specific)': 'temp',
-                'Task type': taskTypeCheckboxes,
-                'Expected complexity (basic)': complexitySelectedOption + 1,
-                'Expected complexity (Prompt specific)': 'temp',
-                'Expected outcome': expectationTypes[expectationSelectedOption],
-                'Expected number of prompts': promptsNum,
-                timeExpectationSelectedOption: timeExpectationList[timeExpectationSelectedOption],
-                'Expected number of prompts': 'temp',
-                'Expected spending time': 1,
-                'Expected answer quality': answerQualityList[answerQualitySelectedOption],
-                'Expected prompt formulate time': promptFormulateTimeList[promptFormulateSelectedOption],
-                checkboxes: taskTypeCheckboxes,
-                // Add other fields you want to save to the document
-              };
-            //   const docRef = await addDoc(collection(db, 'pre_task_questionaire'), formData);
-            console.log('Document written with ID:', docRef.id);
-            // Reset the state or navigate to a new page if needed
-        } catch (error) {
-            console.error('Error adding document:', error);
-        }
+        // Confirm is the user actually wants to save
+        const shouldProceed = window.confirm('Are you sure you want to submit the form?');
+        if(shouldProceed){
+            // check if taskTypeCheckboxes include other, and append the value of the label to it
+            if (taskTypeCheckboxes.includes('Other')){
+                taskTypeCheckboxes.splice(taskTypeCheckboxes.indexOf('Other'))
+                taskTypeCheckboxes.push('Other: ' + otherTaskType)
+            }
+            var finalExpectationType = expectationTypes[expectationSelectedOption]
+            if (finalExpectationType === 'Other'){
+                finalExpectationType = 'Other: ' + otherExpectedOutcome
+            }
+
+            try {
+                const formData = {
+                    'taskTopic': taskTopic,
+                    'topicFimiliarityBasic': fimiliaritySelectedOption + 1,
+                    'topicFimiliaritySpecific': 'temp',
+                    'taskType': taskTypeCheckboxes,
+                    'expectedComplexityBasic': complexitySelectedOption + 1,
+                    'expectedComplexitySpecific': 'temp',
+                    'expectedOutcome': finalExpectationType,
+                    'expectedNumberOfPrompts': promptsNum,
+                    'expectedSpendingTime': timeExpectationList[timeExpectationSelectedOption],
+                    'expectedAnswerQuality': answerQualityList[answerQualitySelectedOption],
+                    'expectedPromptFormulateTime': promptFormulateTimeList[promptFormulateSelectedOption],
+                    'OtherExpectationsOfCost': other
+                };
+                console.log(formData)
+                const docRef = await addDoc(collection(db, 'pre_task_questionaire'), formData);
+                console.log('Document written with ID:', docRef.id);
+            } catch (error) {
+                console.error('Error adding document:', error);
+            }
+            }
         };
           
 
@@ -89,10 +99,10 @@ const Questionnaire = (props) => {
                 {/* Question 1 */}
                 <h1>1. Task name</h1>
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454] mr-9 py-1">
-                    <label 
-                        className="w-[12rem] outline-none px-2" contentEditable={true}
+                    <input 
+                        className="w-full bg-transparent outline-none px-2 h-7"
                         onChange={(e)=>{setTaskTopic(e.target.value)}}>                            
-                    </label>
+                    </input>
                 </div>
                 {/* Question 2 */}
                 <h1>2. Topic fimiliarity</h1>
@@ -132,7 +142,11 @@ const Questionnaire = (props) => {
                         </div>
                     ))}
                     <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
-                        <label className="w-[12rem] outline-none px-2 h-7" contentEditable={true}></label>
+                        <input 
+                            className="w-full bg-transparent outline-none px-2 h-7"
+                            onChange={(e) => {
+                                setOtherTaskType(e.target.value)
+                            }}></input>
                     </div>
                 </div>
                 {/* Question 4 */}
@@ -175,16 +189,19 @@ const Questionnaire = (props) => {
                         );
                         })}
                     <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
-                        <label className="w-[12rem] outline-none px-2 h-7" contentEditable={true}></label>
+                        <input 
+                            className="w-full bg-transparent outline-none px-2 h-7"
+                            onChange={(e)=>{setOtherExpectedOutcome(e.target.value)}}>    
+                        </input>
                     </div>
                 </div>
                 {/* Question 6*/}
                 <h1>6. How many prompts do you expect to formulate or reformulate prompt to achieve your expected outcome?</h1>
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
-                    <label 
-                        className="w-[12rem] outline-none px-2 h-7" contentEditable={true}
+                    <input 
+                        className="w-full bg-transparent outline-none px-2 h-7" contentEditable={true}
                         onChange={(e)=>{setPromptsNum(e.target.value)}}>
-                    </label>
+                    </input>
                 </div>
                 {/* Question 7*/}
                 <h1>7. How much time do you expect it will take to achieve your expected outcome?</h1>
@@ -250,7 +267,12 @@ const Questionnaire = (props) => {
                 {/* Question 10 */}
                 <h1>10. What other cost or effort do you expect during the task?</h1>
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
-                    <label className="w-[12rem] outline-none px-2 h-7" contentEditable={true}></label>
+                    <input 
+                        className="w-full bg-transparent outline-none px-2 h-7"
+                        onChange={(e) => {
+                            setOther(e.target.value)
+                        }}>    
+                    </input>
                 </div>
             </div>
             <div className="flex flex-row justify-around mt-8">
