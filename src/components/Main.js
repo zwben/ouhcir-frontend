@@ -7,7 +7,7 @@ const Main = () => {
   const [showQuestionnaire, setShowQuestionnaire] = useState(false);
 
   return (
-    <div>
+    <div className='flex flex-row'>
       <Navbar setShowQuestionnaire={setShowQuestionnaire} />
       <Chatbox />
       {showQuestionnaire && (

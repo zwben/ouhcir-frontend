@@ -29,7 +29,7 @@ const Navbar = (props) => {
                     </div>
                     <div className="mt-3">
                         <button 
-                            onClick={()=>props.setShowQuestionaire(true)}
+                            onClick={()=>props.setShowQuestionnaire(true)}
                             className="rounded-md px-4 py-1 bg-[#D9D9D9] text-[#142838]">Modify task
                         </button>
                     </div>

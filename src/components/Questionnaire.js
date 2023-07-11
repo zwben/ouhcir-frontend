@@ -276,7 +276,7 @@ const Questionnaire = (props) => {
                 </div>
             </div>
             <div className="flex flex-row justify-around mt-8">
-                <button className="underline text-white"onClick={() => props.setShowQuestionaire(false)}>Cancel</button>
+                <button className="underline text-white"onClick={() => props.setShowQuestionnaire(false)}>Cancel</button>
                 <button className="bg-white px-6 py-2 rounded-2xl" onClick={handleSubmit}>Submit</button>
             </div>
         </div>

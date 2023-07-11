@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useContext } from 'react';
 import {Route, Routes } from 'react-router-dom';
 import SignUp from './components/SignUp';
 import Main from './components/Main';
@@ -6,7 +6,6 @@ import Login from './components/Login';
 import AuthContext from './context/auth-context';
 
 function App() {
-    const [showQuestionaire, setShowQuestionaire] = useState(false);
     const authCtx = useContext(AuthContext)
     const isLoggedIn = authCtx.isLoggedIn
 
