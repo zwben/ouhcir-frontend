@@ -2,7 +2,7 @@ import {useState, useRef} from 'react';
 import Prompt from './prompt';
 import send_message_icon from "../assets/msg_entry/send_message_icon.svg"
 import microphone_icon from "../assets/msg_entry/microphone_icon.svg"
-
+import { openai } from '../openai-config';
 
 
 const MsgEntry = (props) => {
@@ -22,12 +22,21 @@ const MsgEntry = (props) => {
         if (newMessage.trim() != ''){
             console.log('message: ' + newMessage);
             props.setPrompt(newMessage)
-            var messageComp = {'user_message': newMessage, "gpt_reply": 'Hello, I am your AI'}
-            const updatedMessagesArray = [...props.promptResponseArray, messageComp];
+            const updatedMessagesArray = [...props.promptResponseArray, {role: "user", content: newMessage}];
             // get the response from API
             props.setPromptResponseArray(updatedMessagesArray);
             textRef.current.value = '';
             handleTextareaChange()
+            // get API response
+            await props.getAPIResponse(updatedMessagesArray);
+            // For testing
+            // const completion = await openai.createChatCompletion({
+            //     model: "gpt-3.5-turbo",
+            //     messages: updatedMessagesArray,
+            //     });
+            // console.log('Getting openAI response for testing')
+            // var response = completion.data.choices[0].message;
+            // console.log(response)
         }
     }
 
