@@ -13,7 +13,7 @@ const Navbar = (props) => {
         setIsTaskNameEditable(false)
     }
     return(
-        <div className="bg-[#142838] w-80 h-screen flex flex-col text-[18px] pb-10 pt-10 justify-between" >
+        <div className="bg-[#142838] w-80 h-screen sticky flex top-0 flex-col text-[18px] pb-10 pt-10 justify-between" >
             <div className="pl-8 text-white">
                 <label className ='' >Task selection: </label>
                 <div className="flex flex-col mt-4">

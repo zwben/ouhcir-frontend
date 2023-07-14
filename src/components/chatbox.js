@@ -13,17 +13,16 @@ function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
     const [prompt, setPrompt] = useState('')
     const [response, setResponse] = useState('')
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [promptResponseArray, setPromptResponseArray] = useState([])
 
-    let messageComponent = []; //A message component includes a message and its respons.
     const bgObj = {"user": "bg-[#3c586e]",
                     "ai": "bg-[#2f4454]"}
 
-    window.scrollTo(0, document.documentElement.scrollHeight);
-
-
-    
+    useEffect(() => {
+        window.scrollTo(0, document.documentElement.scrollHeight);
+    }, [promptResponseArray]);
+                    
     const getAPIResponse = async (array) => {  
         try {
             setIsLoading(true)
@@ -32,41 +31,44 @@ function ChatBox (){
                 messages: array,
                 });
             console.log('Actual: Getting openAI response')
-            setResponse(completion.data.choices[0].message)
+            array.push(completion.data.choices[0].message);
+            setPromptResponseArray([...array])
         } catch (error) {
             console.error('Error fetching data:', error);
         }
         setIsLoading(false)
     }
 
-
-
-    if(promptResponseArray.length > 0){
-        console.log(promptResponseArray)
-        messageComponent = promptResponseArray.map((message, i)=>{
-        return(
-            <div>
-                <Prompt 
-                    key={"prompt-" + i} text={message.content}
+    // Create an array of message components
+    const messageComponents = promptResponseArray.map((message, index) => (
+        <div key={`message-${index}`}>
+            {message.role === 'user' ? (
+                <Prompt
+                    text={message.content}
                     setShowCommentPopup={setShowCommentPopup}
-                    bgColor={bgObj.user} profile_image={user_profile} 
-                    /> 
-                <Prompt key={"response-" + i} text={message.content}
-                    bgColor = {bgObj.ai}
-                    setShowCommentPopup={setShowCommentPopup} profile_image={ai_profile}
-                    /> 
+                    bgColor={bgObj.user}
+                    profile_image={user_profile}
+                />
+            ) : (
+                <Prompt
+                    text={message.content}
+                    bgColor={bgObj.ai}
+                    setShowCommentPopup={setShowCommentPopup}
+                    profile_image={ai_profile}
+                />
+            )}
             </div>
-        );
-        })
-    }
+    ));
 
-    // TODO: Fix the scrolling
+    console.log(promptResponseArray)
+
     return(
-        <div className="bg-[#2f4454] flex w-full h-full justify-center " >         
-            <div className='w-full'>
-                {messageComponent}
+        <div className="bg-[#2f4454] flex w-full h-full justify-center" >         
+            <div className='w-full mb-36'>
+                {messageComponents}
+                {isLoading && <Prompt text='Loading...' bgColor={bgObj.ai} profile_image={ai_profile} />}
             </div>
-            <div className='absolute bottom-0 mb-8 w-[50%]'>
+            <div className='fixed bottom-0 mb-8 w-[50%]'>
                 <MsgEntry 
                     setPromptResponseArray={setPromptResponseArray} promptResponseArray={promptResponseArray}
                     setPrompt={setPrompt} getAPIResponse={getAPIResponse}/>

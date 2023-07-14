@@ -6,11 +6,11 @@ import comment_icon from '../assets/chatbox/comment_icon.svg'
 
 const Prompt = (props) => {
     return(
-        <div className={"flex flex-row justify-between space-x-4 align-top p-5 pl-14 " + props.bgColor} >
-            <div className='w-full'>
-                <div className='inline-flex w-full space-x-4'>
+        <div className={"flex flex-row space-x-4 justify-center align-top p-4 pl-14 " + props.bgColor} >
+            <div className='w-full xl:max-w-[55%] lg:max-w-[60%]'>
+                <div className='inline-flex  w-full space-x-4 '>
                     <img className='w-9 h-9' src={props.profile_image}/>
-                    <p className="text-white xl:max-w-[50%] lg:max-w-[65%] w-full leading-7">{props.text}</p>
+                    <p className="text-white  w-full leading-7">{props.text}</p>
                 </div>
             </div>
             <div className='flex-shrink-0 inline-flex space-x-4 pr-1 h-fit'>

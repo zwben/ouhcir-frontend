@@ -29,6 +29,8 @@ const MsgEntry = (props) => {
             handleTextareaChange()
             // get API response
             await props.getAPIResponse(updatedMessagesArray);
+            window.scrollTo(0, document.documentElement.scrollHeight);
+
             // For testing
             // const completion = await openai.createChatCompletion({
             //     model: "gpt-3.5-turbo",
