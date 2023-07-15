@@ -1,10 +1,10 @@
-import { useState, useRef} from "react";
+import { useState, useContext} from "react";
 import { collection, addDoc } from 'firebase/firestore';
-
+import AuthContext from "../context/auth-context";
+import TaskContext from "../context/task-context";
 import { db } from "../firebase-config";
 
 const Questionnaire = (props) => {
-
     const [fimiliaritySelectedOption, setFimiliaritySelectedOption] = useState(null);
     const [complexitySelectedOption, setComplexitySelectedOption] = useState(null)
     const [expectationSelectedOption, setExpectationSelectedOption] = useState(null)
@@ -18,6 +18,10 @@ const Questionnaire = (props) => {
     const [otherExpectedOutcome, setOtherExpectedOutcome] = useState('')
     const [other, setOther] = useState('')
     const [taskTypeCheckboxes, setTaskTypeCheckboxes] = useState([]);   // list to containt checkbox values
+
+    // contexts
+    const authCtx = useContext(AuthContext)
+    const taskCtx = useContext(TaskContext)
 
     const taskTypes = ['Learning a new topic', 'Completing an assignment', 'Writing or generating text', 
                         'Engaging in casual conversation or chat', 'Brainstorming ideas', 'Conducting academic research ideas',
@@ -65,9 +69,10 @@ const Questionnaire = (props) => {
             if (finalExpectationType === 'Other'){
                 finalExpectationType = 'Other: ' + otherExpectedOutcome
             }
-
+            console.log(authCtx.user)
             try {
                 const formData = {
+                    'userID': authCtx.user.uid,
                     'taskTopic': taskTopic,
                     'topicFimiliarityBasic': fimiliaritySelectedOption + 1,
                     'topicFimiliaritySpecific': 'temp',
@@ -81,9 +86,11 @@ const Questionnaire = (props) => {
                     'expectedPromptFormulateTime': promptFormulateTimeList[promptFormulateSelectedOption],
                     'OtherExpectationsOfCost': other
                 };
-                console.log(formData)
                 const docRef = await addDoc(collection(db, 'pre_task_questionaire'), formData);
                 console.log('Document written with ID:', docRef.id);
+                taskCtx.saveTask(taskTopic, docRef.id)
+                props.setShowQuestionnaire(false)
+                alert('You questionnaire is saved. You can now start interacting with the chatbot.')
             } catch (error) {
                 console.error('Error adding document:', error);
             }

@@ -4,6 +4,7 @@ const TaskContext = React.createContext({
     taskName: '',
     taskID: '',
     saveTask: (taskName, taskID) => {},
+    removeTask: () => {},
 });
 
 export const TaskContextProvider = (props) => {
@@ -28,10 +29,18 @@ export const TaskContextProvider = (props) => {
         localStorage.setItem('taskID', id);
     };
 
+    const removeTask = () => {
+        setTaskName('');
+        setTaskID('');
+        localStorage.removeItem('taskName');
+        localStorage.removeItem('taskID');
+    };
+
     const contextValue = {
         taskName: taskName,
         taskID: taskID,
         saveTask: saveTask,
+        removeTask: removeTask,
     };
 
     return (
