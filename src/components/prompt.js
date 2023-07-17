@@ -3,9 +3,16 @@ import star_filled_icon from '../assets/common/star_filled_icon.svg'
 import more_icon from '../assets/chatbox/more_icon.svg'
 import comment_icon from '../assets/chatbox/comment_icon.svg'
 import CommentPopUp from './CommentPopUp';
+import { useContext } from 'react';
+import FavouritesContext from '../context/favorites-context';
 
 
 const Prompt = (props) => {
+    const favCtx = useContext(FavouritesContext)
+    
+    const handleStarred = () => {
+        favCtx.saveFavourite(props.promptID, props.text)
+    }
     return(
         <div className={"flex flex-row space-x-4 justify-center align-top p-4 pl-14 " + props.bgColor} >
             <div className='w-full xl:max-w-[55%] lg:max-w-[60%]'>
@@ -15,7 +22,7 @@ const Prompt = (props) => {
                 </div>
             </div>
             <div className='flex-shrink-0 inline-flex space-x-4 pr-1 h-fit'>
-                <button>
+                <button onClick={handleStarred}>
                     <img className='w-7' src={star_icon}/>
                 </button>
                 <button onClick={() => props.setShowCommentPopup(true)}>

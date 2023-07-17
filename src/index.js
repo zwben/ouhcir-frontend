@@ -7,14 +7,17 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import  {AuthContextProvider}  from './context/auth-context';
 import { TaskContextProvider } from './context/task-context';
+import FavouritesContext, { FavouritesContextProvider } from './context/favorites-context';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <AuthContextProvider>
         <TaskContextProvider>
-            <BrowserRouter>
-                <App/>
-            </BrowserRouter>
+            <FavouritesContextProvider>
+                <BrowserRouter>
+                    <App/>
+                </BrowserRouter>
+            </FavouritesContextProvider>
         </TaskContextProvider>
       </AuthContextProvider>
 );
