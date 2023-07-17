@@ -81,13 +81,17 @@ function ChatBox (){
         <div key={`message-${index}`}>
             {message.role === 'user' ? (
                 <Prompt
+                    promptID = {promptID}
                     text={message.content}
+                    showCommentPopup={showCommentPopup}
                     setShowCommentPopup={setShowCommentPopup}
                     bgColor={bgObj.user}
                     profile_image={user_profile}
                 />
             ) : (
                 <Prompt
+                    promptID = {responseID}
+                    showCommentPopup={showCommentPopup}
                     text={message.content}
                     bgColor={bgObj.ai}
                     setShowCommentPopup={setShowCommentPopup}
@@ -110,9 +114,6 @@ function ChatBox (){
                     setPromptResponseArray={setPromptResponseArray} promptResponseArray={promptResponseArray}
                     setPrompt={setPrompt} getAPIResponse={getAPIResponse}/>
             </div>
-            {showCommentPopup && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
-                <CommentPopUp setShowCommentPopup={setShowCommentPopup}/>
-            </div>}
         </div>
     );
 

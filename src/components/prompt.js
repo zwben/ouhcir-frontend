@@ -2,6 +2,7 @@ import star_icon from '../assets/common/star_icon.svg'
 import star_filled_icon from '../assets/common/star_filled_icon.svg'
 import more_icon from '../assets/chatbox/more_icon.svg'
 import comment_icon from '../assets/chatbox/comment_icon.svg'
+import CommentPopUp from './CommentPopUp';
 
 
 const Prompt = (props) => {
@@ -24,6 +25,12 @@ const Prompt = (props) => {
                     <img className='w-6' src={more_icon}/>
                 </button>
             </div>
+            {props.showCommentPopup && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
+                <CommentPopUp 
+                    setShowCommentPopup={props.setShowCommentPopup}
+                    promptID = {props.promptID}
+                    />
+            </div>}
         </div>
     );
 }
