@@ -53,7 +53,6 @@ const CommentPopUp = (props) => {
             await addDoc(commentsRef, {
                 id: commentID,
                 taskID: taskCtx?.taskID || '',
-                promptID: props.promptID || '', // Pass the promptID from props
                 comment: comment,
                 timestamp: new Date(),
             });
