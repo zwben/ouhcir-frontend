@@ -5,7 +5,7 @@ import tick_icon from "../assets/navbar/tick_icon.svg"
 import { useState, useRef, useContext } from "react";
 import TaskContext from "../context/task-context";
 import FavouritesContext from "../context/favorites-context";
-
+//TODO: Add scrolling when a favourites is clicked
 const Navbar = (props) => {
     const taskCtx = useContext(TaskContext)
     const [isTaskNameEditable, setIsTaskNameEditable ] = useState(false)
@@ -26,14 +26,22 @@ const Navbar = (props) => {
             window.location.reload(); // reload the page
         }
     }
-
-    const favouritesComp = favCtx.favourites.map((doc, i)=> {
-        return (
-            <div key={'div-' + i} className="flex flex-col bg-[#2F4454] rounded-md px-4 py-2 text-[15px] max-h-[4.5rem] overflow-hidden leading-7">
-                    <label>{doc.text}</label>
-            </div>
-        )
-    })
+    const handleFavouritesScroll = (e) => {
+        
+    }
+    var favouritesComp = null;
+    if (favCtx.favourites){
+        favouritesComp = favCtx.favourites.map((doc, i)=> {
+            return (
+                <div key={'div-' + i} 
+                    value={doc.divKey}
+                    className="flex flex-col bg-[#2F4454] rounded-md px-4 py-2 text-[15px] max-h-[4.5rem] overflow-hidden leading-7 cursor-pointer"
+                    onClick={handleFavouritesScroll}>
+                        <label className="cursor-pointer" value={doc.divKey}>{doc.text}</label>
+                </div>
+            )
+        })
+    }
 
 
     return(

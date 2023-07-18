@@ -7,11 +7,12 @@ import { openai } from '../openai-config';
 import user_profile from '../assets/chatbox/user_profile.svg'
 import ai_profile from '../assets/chatbox/ai_profile.svg'
 import CommentPopUp from './CommentPopUp';
-import { addDoc, collection } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, where, addDoc } from 'firebase/firestore';
 import TaskContext from '../context/task-context';
 import AuthContext from '../context/auth-context';
 import { db } from '../firebase-config';
 import { uid } from 'uid';
+import FavouritesContext from '../context/favorites-context';
 
 function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
@@ -24,14 +25,44 @@ function ChatBox (){
 
     const taskCtx = useContext(TaskContext)
     const authCtx = useContext(AuthContext)
-
+    const favCtx = useContext(FavouritesContext)
     const bgObj = {"user": "bg-[#3c586e]",
                     "ai": "bg-[#2f4454]"}
 
+    // to handle automatic scrolling to the end
     useEffect(() => {
         window.scrollTo(0, document.documentElement.scrollHeight);
     }, [promptResponseArray]);
-                    
+    
+    useEffect(() => {
+        const fetchChatHistory = async () => {
+            try {
+                const promptRef = collection(db, 'chatsInduvidual');
+        
+                // Add a where clause to filter by taskID
+                const q = query(
+                    promptRef,
+                    where('taskID', '==', taskCtx?.taskID || ''),
+                    orderBy('timestamp', 'asc')
+                );
+        
+                const querySnapshot = await getDocs(q);
+                const chatHistory = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const { role, prompt, id } = doc.data();
+                    chatHistory.push({ role, content: prompt, id });
+                });
+                console.log(chatHistory)
+                setPromptResponseArray(chatHistory);
+            } catch (error) {
+                console.error('Error fetching chat history:', error);
+            }
+            };
+      
+        fetchChatHistory();
+      }, [taskCtx?.taskID]);
+
     const getAPIResponse = async (array, promptID) => {  
         try {
             setIsLoading(true)
@@ -74,32 +105,42 @@ function ChatBox (){
             console.error("Error saving prompt:", error);
         }
       };
-      
-
+        
     // Create an array of message components
-    const messageComponents = promptResponseArray.map((message, index) => (
-        <div key={`message-${index}`}>
-            {message.role === 'user' ? (
-                <Prompt
-                    promptID = {promptID}
-                    text={message.content}
-                    showCommentPopup={showCommentPopup}
-                    setShowCommentPopup={setShowCommentPopup}
-                    bgColor={bgObj.user}
-                    profile_image={user_profile}
-                />
-            ) : (
-                <Prompt
-                    promptID = {responseID}
-                    showCommentPopup={showCommentPopup}
-                    text={message.content}
-                    bgColor={bgObj.ai}
-                    setShowCommentPopup={setShowCommentPopup}
-                    profile_image={ai_profile}
-                />
-            )}
-            </div>
-    ));
+    const messageComponents = promptResponseArray.map((message, index) => {
+        var isStarred = false
+        
+        if (favCtx && favCtx.favourites.find(e => e.promptID == message.id)){
+            isStarred =true
+        }
+        return (
+            <div key={`message-${index}`}>
+                {message.role === 'user' ? (
+                    <Prompt
+                        divKey={`message-${index}`}
+                        promptID = {promptID || message.id}
+                        text={message.content}
+                        showCommentPopup={showCommentPopup}
+                        setShowCommentPopup={setShowCommentPopup}
+                        bgColor={bgObj.user}
+                        profile_image={user_profile}
+                        isStarred={isStarred}
+                    />
+                ) : (
+                    <Prompt
+                        divKey={`message-${index}`}
+                        promptID = {responseID || message.id}
+                        showCommentPopup={showCommentPopup}
+                        text={message.content}
+                        bgColor={bgObj.ai}
+                        setShowCommentPopup={setShowCommentPopup}
+                        profile_image={ai_profile}
+                        isStarred={isStarred}
+                    />
+                )}
+                </div>
+            )
+    });
 
     return(
         <div className="bg-[#2f4454] flex w-full h-full justify-center" >         

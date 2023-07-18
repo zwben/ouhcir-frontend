@@ -30,31 +30,32 @@ export const FavouritesContextProvider = (props) => {
         fetchFavourites();
     }, [taskCtx.taskID]);
 
-    const saveFavourite = async (promptID, text) => {
+    // TODO: Add a userID as well
+    const saveFavourite = async (promptID, text, divKey) => { // Include divKey parameter
         try {
             const favouritesRef = collection(db, 'favourites');
             const querySnapshot = await getDocs(query(favouritesRef, where('taskID', '==', taskCtx.taskID)));
-
+        
             if (!querySnapshot.empty) {
                 // Update existing favourites for the matching taskID
                 const favouritesDoc = querySnapshot.docs[0];
                 const existingFavourites = favouritesDoc.data().favourites || [];
-                const updatedFavourites = [...existingFavourites, { promptID, text }];
+                const updatedFavourites = [...existingFavourites, { promptID, text, divKey }]; // Include divKey in the new item so we can scroll
                 await updateDoc(favouritesDoc.ref, { favourites: updatedFavourites });
                 setFavourites(updatedFavourites);
             } else {
                 // Add a new document for the non-matching taskID
                 await addDoc(favouritesRef, {
                     taskID: taskCtx.taskID,
-                    favourites: [{ promptID, text }],
+                    favourites: [{ promptID, text, divKey }], // Include divKey in the new item so we can scroll
                 });
-                setFavourites([{ promptID, text }]);
+                setFavourites([{ promptID, text, divKey }]);
             }
-        } catch (error) {
+            } catch (error) {
             console.error('Error saving favourite:', error);
-        }
-    };
-
+            }
+      };
+    
     const removeFavourite = async (promptID) => {
         try {
             const favouritesRef = collection(db, 'favourites');

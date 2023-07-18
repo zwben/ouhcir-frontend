@@ -3,13 +3,13 @@ import star_filled_icon from '../assets/common/star_filled_icon.svg'
 import more_icon from '../assets/chatbox/more_icon.svg'
 import comment_icon from '../assets/chatbox/comment_icon.svg'
 import CommentPopUp from './CommentPopUp';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import FavouritesContext from '../context/favorites-context';
 
 
 const Prompt = (props) => {
     const favCtx = useContext(FavouritesContext)
-    const [isStarred, setIsStarred] = useState(false)
+    const [isStarred, setIsStarred] = useState(props.isStarred)
 
     const handleStarred = () => {
         if (isStarred){
@@ -17,7 +17,8 @@ const Prompt = (props) => {
             favCtx.removeFavourite(props.promptID)
         }
         else{
-            favCtx.saveFavourite(props.promptID, props.text)
+            console.log(props)
+            favCtx.saveFavourite(props.promptID, props.text, props.divKey)
             setIsStarred(true)
         }
     }
