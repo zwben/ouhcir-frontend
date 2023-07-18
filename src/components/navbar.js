@@ -4,12 +4,15 @@ import tick_icon from "../assets/navbar/tick_icon.svg"
 
 import { useState, useRef, useContext } from "react";
 import TaskContext from "../context/task-context";
+import FavouritesContext from "../context/favorites-context";
 
 const Navbar = (props) => {
     const taskCtx = useContext(TaskContext)
     const [isTaskNameEditable, setIsTaskNameEditable ] = useState(false)
     const [taskName, setTaskName] = useState(taskCtx.taskName || 'Task name');
     const taskNameLabelRef = useRef()
+    const favCtx = useContext(FavouritesContext)
+
     const changeTaskName = (e) => {
         setTaskName(taskNameLabelRef.current.textContent)
         setIsTaskNameEditable(false)
@@ -23,6 +26,15 @@ const Navbar = (props) => {
             window.location.reload(); // reload the page
         }
     }
+
+    const favouritesComp = favCtx.favourites.map((doc, i)=> {
+        return (
+            <div key={'div-' + i} className="flex flex-col bg-[#2F4454] rounded-md px-4 py-2 text-[15px] max-h-[4.5rem] overflow-hidden leading-7">
+                    <label>{doc.text}</label>
+            </div>
+        )
+    })
+
 
     return(
         <div className="bg-[#142838] w-80 h-screen sticky flex top-0 flex-col text-[18px] pb-10 pt-10 justify-between" >
@@ -48,6 +60,9 @@ const Navbar = (props) => {
                     <div className="flex space-x-3 w-fit mt-16">
                         <img src={star_filled}/>
                         <label className="">Favourites</label>
+                    </div>
+                    <div className="flex flex-col w-fit mr-8 space-y-2 mt-3 ml-7">
+                        {favouritesComp}
                     </div>
                 </div>
             </div>

@@ -21,9 +21,7 @@ export const FavouritesContextProvider = (props) => {
             try {
                 const q = query(collection(db, 'favourites'), where('taskID', '==', taskCtx.taskID));
                 const querySnapshot = await getDocs(q);
-                console.log(taskCtx.taskID)
                 const favouritesData = querySnapshot.docs[0]?.data().favourites
-                console.log(favouritesData)          
                 setFavourites(favouritesData);
             } catch (error) {
                 console.error('Error fetching favourites:', error);
@@ -57,17 +55,27 @@ export const FavouritesContextProvider = (props) => {
         }
     };
 
-
     const removeFavourite = async (promptID) => {
-        // try {
-        //     const userId = authCtx.user.uid; // Replace with the user ID from Firebase Auth
-        //     const favouritesRef = firebase.firestore().collection('users').doc(userId).collection('favourites');
-        //     await favouritesRef.doc(promptID).delete();
-        //     setFavourites(favourites.filter((fav) => fav.promptID !== promptID));
-        // } catch (error) {
-        // console.error('Error removing favourite:', error);
-        // }
+        try {
+            const favouritesRef = collection(db, 'favourites');
+            const querySnapshot = await getDocs(query(favouritesRef, where('taskID', '==', taskCtx.taskID)));
+
+            if (!querySnapshot.empty) {
+                // Update existing favourites for the matching taskID
+                const favouritesDoc = querySnapshot.docs[0];
+                const existingFavourites = favouritesDoc.data().favourites || [];
+                const updatedFavourites = existingFavourites.filter((fav) => fav.promptID !== promptID);
+                await updateDoc(favouritesDoc.ref, { favourites: updatedFavourites });
+                setFavourites(updatedFavourites);
+            } else {
+                // Favourites not found for the taskID, nothing to remove
+                console.log('Favourites not found for this taskID:', taskCtx.taskID);
+            }
+        } catch (error) {
+            console.error('Error removing favourite:', error);
+        }
     };
+
 
     const contextValue = {
         favourites: favourites,
