@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../firebase-config";
+import TaskContext from "../context/task-context";
 
 const PostTaskQuestionnaire = (props) => {
     const [gainConfirmation, setGainConfirmation] = useState(null);
@@ -8,6 +11,7 @@ const PostTaskQuestionnaire = (props) => {
     const [encounteredProblems, setEncounteredProblems] = useState([]);
     const [otherChallenges, setOtherChallenges] = useState('');
 
+    const taskCtx = useContext(TaskContext)
     
     // Array of encountered problems with subgroups
     const encounteredProblemsList = [
@@ -73,10 +77,39 @@ const PostTaskQuestionnaire = (props) => {
             }
     };
 
-    const handleSubmit = () => {
-        
-    }
+    const handleSubmit = async () => {
+        // Confirm if the user actually wants to save
+        const shouldProceed = window.confirm('Are you sure you want to submit the form?');
+        if (shouldProceed) {
+            // Create the formData object and populate it with the values from state
+            const formData = {
+                gainConfirmation: gainConfirmation + 1,
+                costConfirmation: costConfirmation + 1,
+                satisfaction: satisfaction + 1,
+                recommendation: recommendation + 1,
+                encounteredProblems: encounteredProblems,
+                otherChallenges: otherChallenges,
+            };
 
+            // Print the formData object for troubleshooting
+            console.log(formData);
+
+            try {
+                // Save the form data to Firestore
+                const docRef = await addDoc(collection(db, 'postTaskQuestionnaire'), formData);
+                console.log('Document written with ID:', docRef.id);
+                
+                // Hide the questionnaire 
+                props.setShowPostTaskQuestionnaire(false);
+                // remove the task from localstorage
+                taskCtx.removeTask();
+            } catch (error) {
+                console.error('Error adding document:', error);
+            }
+        }
+    };
+
+    
     return(
         <div className="flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl min-w-[30rem] max-h-[85%] overflow-auto">
             <h1 className="text-white text-center">Post task Questionnaire</h1>
@@ -135,7 +168,7 @@ const PostTaskQuestionnaire = (props) => {
                         );
                     })}
                 </div>
-                <div className="flex justify-between pl-4 pr-8">
+                <div className="flex justify-between pl-4 pr-8 text-[13px]">
                     <h1>Very unsatisfied</h1>
                     <h1>Unsatisfied</h1>
                     <h1>Neutral</h1>
