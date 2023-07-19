@@ -22,12 +22,8 @@ const Navbar = (props) => {
         // Confirm is the user actually wants to save
         const shouldProceed = window.confirm('Are you sure you want to finish the task?');
         if(shouldProceed){
-            taskCtx.removeTask()
-            window.location.reload(); // reload the page
+            props.setShowPostTaskQuestionnaire(true)
         }
-    }
-    const handleFavouritesScroll = (e) => {
-        
     }
     var favouritesComp = null;
     if (favCtx.favourites){
@@ -36,7 +32,7 @@ const Navbar = (props) => {
                 <div key={'div-' + i} 
                     value={doc.divKey}
                     className="flex flex-col bg-[#2F4454] rounded-md px-4 py-2 text-[15px] max-h-[4.5rem] overflow-hidden leading-7 cursor-pointer"
-                    onClick={handleFavouritesScroll}>
+                >
                         <label className="cursor-pointer" value={doc.divKey}>{doc.text}</label>
                 </div>
             )
