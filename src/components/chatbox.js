@@ -109,8 +109,7 @@ function ChatBox (){
     // Create an array of message components
     const messageComponents = promptResponseArray.map((message, index) => {
         var isStarred = false
-        
-        if (favCtx && favCtx.favourites.find(e => e.promptID == message.id)){
+        if (favCtx.favourites && favCtx.favourites.find(e => e.promptID == message.id)){
             isStarred =true
         }
         return (
