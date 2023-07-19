@@ -47,10 +47,13 @@ const Navbar = (props) => {
     return(
         <div className="bg-[#142838] w-80 h-screen sticky flex top-0 flex-col text-[18px] pb-10 pt-10 justify-between" >
             <div className="pl-8 text-white">
-                <label className ='' >Task selection: </label>
+                <label className ='' >Current task</label>
                 <div className="flex flex-col mt-4">
-                    <div className="flex flex-row justify-between rounded-md bg-[#2F4454] mr-9 px-4 py-1">
-                        <label className="w-[12rem] outline-none" contentEditable={isTaskNameEditable} ref={taskNameLabelRef} placeholder="Task name">{taskName}</label>
+                    {!taskCtx.taskID && 
+                        <label
+                            className="text-red-500 py-1 pr-1">No task started. Your interactions will not be saved properly. Please start a task</label>}
+                    {taskCtx.taskID && <div className="flex flex-row justify-between rounded-md bg-[#2F4454] mr-9 px-4 py-1">
+                        <label className="w-[12rem] outline-none" contentEditable={isTaskNameEditable} ref={taskNameLabelRef}>{taskName}</label>
                         {isTaskNameEditable && 
                             <button onClick={changeTaskName}>
                             <img src={tick_icon}/>
@@ -58,7 +61,7 @@ const Navbar = (props) => {
                         {!isTaskNameEditable && <button onClick={()=> setIsTaskNameEditable(true)}>
                             <img src={edit_icon}/>
                         </button>}
-                    </div>
+                    </div>}
                     <div className="mt-3">
                         <button 
                             onClick={()=>props.setShowQuestionnaire(true)}
