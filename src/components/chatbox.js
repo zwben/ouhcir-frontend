@@ -13,6 +13,7 @@ import AuthContext from '../context/auth-context';
 import { db } from '../firebase-config';
 import { uid } from 'uid';
 import FavouritesContext from '../context/favorites-context';
+import QueContext from '../context/que-context';
 
 function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
@@ -26,8 +27,48 @@ function ChatBox (){
     const taskCtx = useContext(TaskContext)
     const authCtx = useContext(AuthContext)
     const favCtx = useContext(FavouritesContext)
+    const queCtx = useContext(QueContext)
+
+    // gpt related states
+    const [promptSuggestions, setPromptSuggestions] = useState([])
+    const [questionsSuggestions, setQuestionsSuggestions] = useState([])
+
     const bgObj = {"user": "bg-[#3c586e]",
                     "ai": "bg-[#2f4454]"}
+    
+    useEffect(() => {
+        const getPromptSuggestions = async () => {
+            if (queCtx.formData.taskTopic) {
+                const { taskTopic, fimiliaritySelectedOption, topicFimiliaritySpecificOptions, complexitySelectedOption, expectedComplexitySpecificOptions, timeExpectationList, timeExpectationSelectedOption } = queCtx.formData;
+                console.log(queCtx.formData)
+                const messages = [
+                        {
+                            "role": "system",
+                            "content": `You are a teacher help the user learn the topic: ${taskTopic}. The user has a familiarity degree of (${fimiliaritySelectedOption + 1} out of 5), stating ${topicFimiliaritySpecificOptions[fimiliaritySelectedOption]}".  The user think the complexity of this task (${complexitySelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[complexitySelectedOption]}. The user expects to spend ${timeExpectationList[timeExpectationSelectedOption]} to fully complete the task. Given the familiarity level, complexity level, and user expectation, adjust your answers so that the user can understand better.`
+                        },
+                        {
+                            "role": "user",
+                            "content": "Please generate five questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array"
+                        },
+                    ];
+            
+                console.log(messages);
+                // const response = await openai.createChatCompletion({
+                //     model: "gpt-3.5-turbo",
+                //     messages: messages,
+                //     max_tokens: 256,
+                // });
+            
+                // const res = JSON.parse(response.data.choices[0].message.content);
+                // console.log(res);
+            }
+        }
+        
+        if (queCtx.formData) {
+            getPromptSuggestions();
+        }
+        }, [queCtx.formData]);
+                      
 
     // to handle automatic scrolling to the end
     useEffect(() => {
@@ -53,7 +94,6 @@ function ChatBox (){
                     const { role, prompt, id } = doc.data();
                     chatHistory.push({ role, content: prompt, id });
                 });
-                console.log(chatHistory)
                 setPromptResponseArray(chatHistory);
             } catch (error) {
                 console.error('Error fetching chat history:', error);
@@ -91,7 +131,6 @@ function ChatBox (){
     const saveResponseToFirestore = async (message, promptID, tempResponseID) => {
         try {
             const promptRef = collection(db, 'chatsInduvidual');
-            console.log('Setting promptID is saveResponseToFirestore ' + promptID)
             const docRef = await addDoc(promptRef, {
                 id: tempResponseID,
                 taskID: taskCtx?.taskID || '',
