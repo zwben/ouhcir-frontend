@@ -19,7 +19,6 @@ export const QueContextProvider = (props) => {
                     const formDataSnapshot = await getDoc(formDataRef);
                     if (formDataSnapshot.exists()) {
                         const data = formDataSnapshot.data();
-                        console.log(data);
                         setFormData(data);
                     } else {
                         setFormData(null);

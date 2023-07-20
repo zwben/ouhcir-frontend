@@ -91,9 +91,6 @@ const PostTaskQuestionnaire = (props) => {
                 otherChallenges: otherChallenges,
             };
 
-            // Print the formData object for troubleshooting
-            console.log(formData);
-
             try {
                 // Save the form data to Firestore
                 const docRef = await addDoc(collection(db, 'postTaskQuestionnaire'), formData);

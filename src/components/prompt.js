@@ -17,7 +17,6 @@ const Prompt = (props) => {
             favCtx.removeFavourite(props.promptID)
         }
         else{
-            console.log(props)
             favCtx.saveFavourite(props.promptID, props.text, props.divKey)
             setIsStarred(true)
         }

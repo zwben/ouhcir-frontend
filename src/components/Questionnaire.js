@@ -52,11 +52,9 @@ const Questionnaire = (props) => {
       if (taskTypeCheckboxes.includes(value)) {
         setTaskTypeCheckboxes(taskTypeCheckboxes.filter((item) => item !== value));
       } else{
-        console.log(value)
         // If other is selected, enable the label for input
         setTaskTypeCheckboxes([...taskTypeCheckboxes, value]);
       }
-      console.log(taskTypeCheckboxes)
     };
   
     const handleButtonClick = (buttonNumber) => {
@@ -76,7 +74,6 @@ const Questionnaire = (props) => {
             if (finalExpectationType === 'Other'){
                 finalExpectationType = 'Other: ' + otherExpectedOutcome
             }
-            console.log(authCtx.user)
             try {
                 const formData = {
                     'userID': authCtx.user.uid,
@@ -86,7 +83,8 @@ const Questionnaire = (props) => {
                     'topicFimiliaritySpecific': topicFimiliaritySpecificSelectedOption + 1,
                     'taskType': taskTypeCheckboxes,
                     'expectedComplexityBasic': complexitySelectedOption + 1,
-                    'expectedComplexitySpecific': 'temp',
+                    'expectedComplexitySpecificOptions': expectedComplexitySpecificOptions,
+                    expectationSelectedOption,
                     'expectedOutcome': finalExpectationType,
                     'expectedNumberOfPrompts': promptsNum,
                     'expectedSpendingTime': timeExpectationList[timeExpectationSelectedOption],
@@ -99,6 +97,7 @@ const Questionnaire = (props) => {
                 taskCtx.saveTask(taskTopic, docRef.id)
                 props.setShowQuestionnaire(false)
                 alert('You questionnaire is saved. You can now start interacting with the chatbot.')
+                window.location.reload()
             } catch (error) {
                 console.error('Error adding document:', error);
             }
@@ -124,7 +123,6 @@ const Questionnaire = (props) => {
             max_tokens: 256,
         })
         const res = JSON.parse(response.data.choices[0].message.content);
-        console.log(res)
         const tempArray = [];
         for (const key in res) {
             const item = res[key];
@@ -150,14 +148,12 @@ const Questionnaire = (props) => {
                         for users to better understand which complexity level represent. You output must be in the 
                         json format with the keys: degree {description, and example}`
             }]
-        console.log(messages)
         const response = await openai.createChatCompletion({
             model:"gpt-3.5-turbo",
             messages:messages, 
             max_tokens: 256,
         })
         const res = JSON.parse(response.data.choices[0].message.content);
-        console.log(res)
         const tempArray = [];
         for (const key in res) {
             const item = res[key];

@@ -27,7 +27,6 @@ const MsgEntry = (props) => {
             try {
                 const promptRef = collection(db, 'chatsInduvidual');
                 const promptID = uid()
-                console.log(promptID)
                 props.setPromptID(promptID)
                 const docRef = await addDoc(promptRef, {
                         id: promptID,
