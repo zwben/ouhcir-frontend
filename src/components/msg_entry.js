@@ -13,6 +13,7 @@ const MsgEntry = (props) => {
     const textRef = useRef();  
     const taskCtx = useContext(TaskContext)
     const authCtx = useContext(AuthContext)
+
     const handleTextareaChange = () => {
         if (textRef.current) {
             textRef.current.style.height = '7px'; // Reset the height 7px
@@ -20,8 +21,13 @@ const MsgEntry = (props) => {
         }
     };
 
+    if(props.msgEntryText){
+        textRef.current.value = props.msgEntryText
+    }
+
     const sendPrompt = async (e) => {
         const newMessage = textRef.current.value
+        props.setMsgEntryText('')
         if (newMessage.trim() != ''){
             // Save the prompt to Firestore database
             try {

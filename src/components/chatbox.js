@@ -23,7 +23,7 @@ function ChatBox (){
     const [responseID, setResponseID] = useState('')
     const [isLoading, setIsLoading] = useState(false);
     const [promptResponseArray, setPromptResponseArray] = useState([])
-
+    const [msgEntryText, setMsgEntryText] = useState() // for handling whenever the user clicked the question or prompt suggestions
     const taskCtx = useContext(TaskContext)
     const authCtx = useContext(AuthContext)
     const favCtx = useContext(FavouritesContext)
@@ -36,15 +36,27 @@ function ChatBox (){
     const bgObj = {"user": "bg-[#3c586e]",
                     "ai": "bg-[#2f4454]"}
     
+    // to get prompt suggestions and question suggestions
     useEffect(() => {
-        const getPromptSuggestions = async () => {
-            if (queCtx.formData.taskTopic) {
-                const { taskTopic, fimiliaritySelectedOption, topicFimiliaritySpecificOptions, complexitySelectedOption, expectedComplexitySpecificOptions, timeExpectationList, timeExpectationSelectedOption } = queCtx.formData;
+        const getQuestionSuggestions = async (formData) => {
+            try{
+                const {
+                    taskTopic,
+                    topicFimiliarityBasic,
+                    topicFimiliaritySpecific,
+                    topicFimiliaritySpecificOptions,
+                    expectedComplexityBasic,
+                    expectedComplexitySpecificOptions,
+                    expectedComplexitySpecificSelectedOption,
+                    expectedSpendingTime,
+                } = formData
+        
+                console.log('here')
                 console.log(queCtx.formData)
                 const messages = [
                         {
                             "role": "system",
-                            "content": `You are a teacher help the user learn the topic: ${taskTopic}. The user has a familiarity degree of (${fimiliaritySelectedOption + 1} out of 5), stating ${topicFimiliaritySpecificOptions[fimiliaritySelectedOption]}".  The user think the complexity of this task (${complexitySelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[complexitySelectedOption]}. The user expects to spend ${timeExpectationList[timeExpectationSelectedOption]} to fully complete the task. Given the familiarity level, complexity level, and user expectation, adjust your answers so that the user can understand better.`
+                            "content": `You are a teacher help the user learn the topic: ${taskTopic || ''}. The user has a familiarity degree of (${topicFimiliarityBasic} out of 5), stating ${topicFimiliaritySpecificOptions[topicFimiliaritySpecific]}".  The user think the complexity of this task (${expectedComplexityBasic} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to fully complete the task. Given the familiarity level, complexity level, and user expectation, adjust your answers so that the user can understand better.`
                         },
                         {
                             "role": "user",
@@ -53,21 +65,25 @@ function ChatBox (){
                     ];
             
                 console.log(messages);
-                // const response = await openai.createChatCompletion({
-                //     model: "gpt-3.5-turbo",
-                //     messages: messages,
-                //     max_tokens: 256,
-                // });
+                const response = await openai.createChatCompletion({
+                    model: "gpt-3.5-turbo",
+                    messages: messages,
+                    max_tokens: 256,
+                });
             
-                // const res = JSON.parse(response.data.choices[0].message.content);
-                // console.log(res);
-            }
+                const res = JSON.parse(response.data.choices[0].message.content);
+                setQuestionsSuggestions(res)
+                } catch(e){
+                    console.log(e)
+                }
         }
-        
-        if (queCtx.formData) {
-            getPromptSuggestions();
+        const getPromptSuggestions = async () => {
+            
         }
-        }, [queCtx.formData]);
+        if (queCtx.formData !== null) {
+            getQuestionSuggestions(queCtx.formData);
+        }
+    }, [queCtx.formData?.taskTopic]);
                       
 
     // to handle automatic scrolling to the end
@@ -75,6 +91,7 @@ function ChatBox (){
         window.scrollTo(0, document.documentElement.scrollHeight);
     }, [promptResponseArray]);
     
+    // To get the chat history
     useEffect(() => {
         const fetchChatHistory = async () => {
             try {
@@ -144,6 +161,26 @@ function ChatBox (){
             console.error("Error saving prompt:", error);
         }
       };
+    
+    const handleQuestionClicked = (value) => {
+        setMsgEntryText(value)
+    }
+    var questionSuggestionsComp = null
+    if (questionsSuggestions.length > 0){
+        console.log(questionsSuggestions)
+        questionSuggestionsComp = questionsSuggestions.map((question, index) => {
+            return (
+                <div
+                    value={question} 
+                    key={'q-div-' + index} 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-[11px] max-w-[223px]' 
+                    onClick={() => handleQuestionClicked(question)}
+                  >
+                    <p>{question}</p>
+                </div>
+            )
+        })
+    }
         
     // Create an array of message components
     const messageComponents = promptResponseArray.map((message, index) => {
@@ -181,13 +218,19 @@ function ChatBox (){
     });
 
     return(
-        <div className="bg-[#2f4454] flex w-full h-full justify-center" >         
-            <div className='w-full mb-36'>
+        <div className="bg-[#2f4454] flex w-full h-full justify-center flex-col" >         
+            <div className='w-full mb-40'>
                 {messageComponents}
                 {isLoading && <Prompt text='Loading...' bgColor={bgObj.ai} profile_image={ai_profile} />}
             </div>
-            <div className='fixed bottom-0 mb-8 w-[50%]'>
+            <div className="fixed bottom-[100px] flex flex-row space-x-4 w-fit max-w-[75%] left-1/2 transform -translate-x-1/2">
+                <h1 className='text-[#D9D9D9]'>Questions</h1>
+                {questionSuggestionsComp}
+            </div>
+            <div className='fixed bottom-0 mb-8 w-[50%] flex flex-col left-1/2 transform -translate-x-1/2'>
                 <MsgEntry 
+                    msgEntryText={msgEntryText}
+                    setMsgEntryText={setMsgEntryText}
                     setPromptID = {setPromptID}
                     responseID = {responseID}
                     setPromptResponseArray={setPromptResponseArray} promptResponseArray={promptResponseArray}

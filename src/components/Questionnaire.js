@@ -84,7 +84,7 @@ const Questionnaire = (props) => {
                     'taskType': taskTypeCheckboxes,
                     'expectedComplexityBasic': complexitySelectedOption + 1,
                     'expectedComplexitySpecificOptions': expectedComplexitySpecificOptions,
-                    expectationSelectedOption,
+                    expectedComplexitySpecificSelectedOption,
                     'expectedOutcome': finalExpectationType,
                     'expectedNumberOfPrompts': promptsNum,
                     'expectedSpendingTime': timeExpectationList[timeExpectationSelectedOption],
