@@ -55,6 +55,7 @@ const CommentPopUp = (props) => {
                 taskID: taskCtx?.taskID || '',
                 comment: comment,
                 timestamp: new Date(),
+                promptID:props.promptID,
             });
     
             // Close the comment popup

@@ -174,7 +174,7 @@ function ChatBox (){
                 <div
                     value={question} 
                     key={'q-div-' + index} 
-                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-[11px] max-w-[223px]' 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-[11px] max-w-[223px] text-[#142838]' 
                     onClick={() => handleQuestionClicked(question)}
                   >
                     <p>{question}</p>

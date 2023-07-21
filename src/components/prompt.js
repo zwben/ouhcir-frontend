@@ -6,11 +6,13 @@ import CommentPopUp from './CommentPopUp';
 import { useContext, useEffect, useState } from 'react';
 import FavouritesContext from '../context/favorites-context';
 import MoreActionsPopUp from './MoreActionsPopUp';
+import RatePrompt from './RatePrompt';
 
 
 const Prompt = (props) => {
     const favCtx = useContext(FavouritesContext)
     const [isStarred, setIsStarred] = useState(props.isStarred)
+    const [showRatePrompt, setShowRatePrompt] = useState(false)
 
     const handleStarred = () => {
         if (isStarred){
@@ -37,7 +39,9 @@ const Prompt = (props) => {
                 <button onClick={() => props.setShowCommentPopup((prevValue) => !prevValue)}>
                     <img className='w-6' src={comment_icon}/>
                 </button>
-                <button onClick={() => props.setShowMoreActionsPopUp(true)}>
+                <button onClick={() => {
+                        props.setShowMoreActionsPopUp(true) 
+                        console.log("propsID " + props.promptID)}}>
                     <img className='w-6' src={more_icon}/>
                 </button>
             </div>
@@ -49,7 +53,14 @@ const Prompt = (props) => {
             </div>}
             {props.showMoreActionsPopUp && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
                 <MoreActionsPopUp 
+                    setShowRatePrompt={setShowRatePrompt}
                     setShowMoreActionsPopUp={props.setShowMoreActionsPopUp}
+                    promptID = {props.promptID}
+                    />
+            </div>}
+            {showRatePrompt && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
+                <RatePrompt 
+                    setShowRatePrompt={setShowRatePrompt}
                     promptID = {props.promptID}
                     />
             </div>}
