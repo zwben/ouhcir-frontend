@@ -5,6 +5,7 @@ import comment_icon from '../assets/chatbox/comment_icon.svg'
 import CommentPopUp from './CommentPopUp';
 import { useContext, useEffect, useState } from 'react';
 import FavouritesContext from '../context/favorites-context';
+import MoreActionsPopUp from './MoreActionsPopUp';
 
 
 const Prompt = (props) => {
@@ -33,16 +34,22 @@ const Prompt = (props) => {
                 <button onClick={handleStarred}>
                     <img className='w-7' src={isStarred ? star_filled_icon : star_icon}/>
                 </button>
-                <button onClick={() => props.setShowCommentPopup(true)}>
+                <button onClick={() => props.setShowCommentPopup((prevValue) => !prevValue)}>
                     <img className='w-6' src={comment_icon}/>
                 </button>
-                <button>
+                <button onClick={() => props.setShowMoreActionsPopUp(true)}>
                     <img className='w-6' src={more_icon}/>
                 </button>
             </div>
             {props.showCommentPopup && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
                 <CommentPopUp 
                     setShowCommentPopup={props.setShowCommentPopup}
+                    promptID = {props.promptID}
+                    />
+            </div>}
+            {props.showMoreActionsPopUp && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
+                <MoreActionsPopUp 
+                    setShowMoreActionsPopUp={props.setShowMoreActionsPopUp}
                     promptID = {props.promptID}
                     />
             </div>}

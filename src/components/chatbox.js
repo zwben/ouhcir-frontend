@@ -17,6 +17,7 @@ import QueContext from '../context/que-context';
 
 function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
+    const [showMoreActionsPopUp, setShowMoreActionsPopUp] = useState(false)
     const [prompt, setPrompt] = useState('')
     const [response, setResponse] = useState('')
     const [promptID, setPromptID] = useState('')
@@ -197,6 +198,8 @@ function ChatBox (){
                         text={message.content}
                         showCommentPopup={showCommentPopup}
                         setShowCommentPopup={setShowCommentPopup}
+                        showMoreActionsPopUp={showMoreActionsPopUp}
+                        setShowMoreActionsPopUp={setShowMoreActionsPopUp}
                         bgColor={bgObj.user}
                         profile_image={user_profile}
                         isStarred={isStarred}
@@ -206,9 +209,11 @@ function ChatBox (){
                         divKey={`message-${index}`}
                         promptID = {responseID || message.id}
                         showCommentPopup={showCommentPopup}
+                        setShowCommentPopup={setShowCommentPopup}
+                        showMoreActionsPopUp={showMoreActionsPopUp}
+                        setShowMoreActionsPopUp={setShowMoreActionsPopUp}
                         text={message.content}
                         bgColor={bgObj.ai}
-                        setShowCommentPopup={setShowCommentPopup}
                         profile_image={ai_profile}
                         isStarred={isStarred}
                     />
