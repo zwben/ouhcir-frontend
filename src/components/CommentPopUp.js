@@ -13,27 +13,27 @@ const CommentPopUp = (props) => {
   
     const taskCtx = useContext(TaskContext);
   
-    useEffect(() => {
-        const fetchComment = async () => {
-          if (props.promptID) {
-            try {
-              const commentsRef = collection(db, 'comments');
-              const q = query(commentsRef, where('promptID', '==', props.promptID));
-              const querySnapshot = await getDocs(q);
+    // useEffect(() => {
+    //     const fetchComment = async () => {
+    //       if (props.promptID) {
+    //         try {
+    //           const commentsRef = collection(db, 'comments');
+    //           const q = query(commentsRef, where('promptID', '==', props.promptID));
+    //           const querySnapshot = await getDocs(q);
     
-              if (!querySnapshot.empty) {
-                // Assuming there is only one comment for a specific promptID
-                const commentData = querySnapshot.docs[0].data();
-                textRef.current.value = commentData?.comment
-              }
-            } catch (error) {
-              console.error("Error fetching comment:", error);
-            }
-          }
-        };
+    //           if (!querySnapshot.empty) {
+    //             // Assuming there is only one comment for a specific promptID
+    //             const commentData = querySnapshot.docs[0].data();
+    //             textRef.current.value = commentData?.comment
+    //           }
+    //         } catch (error) {
+    //           console.error("Error fetching comment:", error);
+    //         }
+    //       }
+    //     };
     
-        fetchComment();
-      }, [props.promptID]);
+    //     fetchComment();
+    //   }, [props.promptID]);
     
     const handleTextareaChange = (e) => {
         if (textRef.current) {

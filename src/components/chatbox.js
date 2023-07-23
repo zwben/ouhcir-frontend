@@ -60,7 +60,6 @@ function ChatBox (){
                     "content": "Please generate five follow up questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions"
                     
                 })
-                console.log(messages)
                 const response = await openai.createChatCompletion({
                     model: "gpt-3.5-turbo",
                     messages: messages,
@@ -68,7 +67,6 @@ function ChatBox (){
                 });
             
                 const res = JSON.parse(response.data.choices[0].message.content);
-                console.log(res)
                 setPromptSuggestions(res)
                 } catch(e){
                     console.log(e)
@@ -244,7 +242,7 @@ function ChatBox (){
                 {message.role === 'user' ? (
                     <Prompt
                         divKey={`message-${index}`}
-                        promptID = {promptID || message.id}
+                        promptID = {message.id}
                         text={message.content}
                         showCommentPopup={showCommentPopup}
                         setShowCommentPopup={setShowCommentPopup}
@@ -257,7 +255,7 @@ function ChatBox (){
                 ) : (
                     <Prompt
                         divKey={`message-${index}`}
-                        promptID = {responseID || message.id}
+                        promptID = {message.id}
                         showCommentPopup={showCommentPopup}
                         setShowCommentPopup={setShowCommentPopup}
                         showMoreActionsPopUp={showMoreActionsPopUp}

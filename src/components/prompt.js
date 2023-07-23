@@ -13,7 +13,10 @@ const Prompt = (props) => {
     const favCtx = useContext(FavouritesContext)
     const [isStarred, setIsStarred] = useState(props.isStarred)
     const [showRatePrompt, setShowRatePrompt] = useState(false)
+    const [showCommentPopup, setShowCommentPopup] = useState(false)
+    const [showMoreActionsPopUp, setShowMoreActionsPopUp] = useState(false)
 
+    const promptID = props.promptID
     const handleStarred = () => {
         if (isStarred){
             setIsStarred(false)
@@ -36,25 +39,27 @@ const Prompt = (props) => {
                 <button onClick={handleStarred}>
                     <img className='w-7' src={isStarred ? star_filled_icon : star_icon}/>
                 </button>
-                <button onClick={() => props.setShowCommentPopup((prevValue) => !prevValue)}>
+                <button onClick={() => {
+                    setShowCommentPopup((prevValue) => !prevValue)
+                    }}>
                     <img className='w-6' src={comment_icon}/>
                 </button>
                 <button onClick={() => {
-                        props.setShowMoreActionsPopUp(true) 
-                        console.log("propsID " + props.promptID)}}>
+                        setShowMoreActionsPopUp(true) 
+                        }}>
                     <img className='w-6' src={more_icon}/>
                 </button>
             </div>
-            {props.showCommentPopup && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
+            {showCommentPopup && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
                 <CommentPopUp 
-                    setShowCommentPopup={props.setShowCommentPopup}
-                    promptID = {props.promptID}
+                    setShowCommentPopup={setShowCommentPopup}
+                    promptID = {promptID}
                     />
             </div>}
-            {props.showMoreActionsPopUp && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
+            {showMoreActionsPopUp && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
                 <MoreActionsPopUp 
                     setShowRatePrompt={setShowRatePrompt}
-                    setShowMoreActionsPopUp={props.setShowMoreActionsPopUp}
+                    setShowMoreActionsPopUp={setShowMoreActionsPopUp}
                     promptID = {props.promptID}
                     />
             </div>}
