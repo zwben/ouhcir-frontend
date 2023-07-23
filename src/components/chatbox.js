@@ -37,6 +37,44 @@ function ChatBox (){
     const bgObj = {"user": "bg-[#3c586e]",
                     "ai": "bg-[#2f4454]"}
     
+    const getPromptSuggestions = async (promptResponseArray) => {
+        if (response !== '' || promptResponseArray.length >=2 ){
+            try{
+                const arrLength = promptResponseArray.length
+                const {taskTopic, topicFimiliarityBasic, topicFimiliaritySpecific, topicFimiliaritySpecificOptions, expectedComplexityBasic, expectedComplexitySpecificOptions, expectedComplexitySpecificSelectedOption, expectedSpendingTime,} = queCtx.formData
+                const messages = [
+                        {
+                            "role": "system",
+                            "content": `You are a teacher help the user learn the topic: ${taskTopic || ''}. The user has a familiarity degree of (${topicFimiliarityBasic} out of 5), stating ${topicFimiliaritySpecificOptions[topicFimiliaritySpecific]}".  The user think the complexity of this task (${expectedComplexityBasic} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to fully complete the task. Given the familiarity level, complexity level, and user expectation, adjust your answers so that the user can understand better.`
+                        },
+                    ];
+                const filteredPromptResponseArray = promptResponseArray.map(({ id, ...rest }) => rest);
+
+                // Push the second-to-last element without the 'id' property
+                messages.push(filteredPromptResponseArray[arrLength - 2]);
+                
+                // Push the last element without the 'id' property
+                messages.push(filteredPromptResponseArray[arrLength - 1]);
+                messages.push({
+                    "role": "user",
+                    "content": "Please generate five follow up questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions"
+                    
+                })
+                console.log(messages)
+                const response = await openai.createChatCompletion({
+                    model: "gpt-3.5-turbo",
+                    messages: messages,
+                    max_tokens: 256,
+                });
+            
+                const res = JSON.parse(response.data.choices[0].message.content);
+                console.log(res)
+                setPromptSuggestions(res)
+                } catch(e){
+                    console.log(e)
+                }
+        }
+    }
     // to get prompt suggestions and question suggestions
     useEffect(() => {
         const getQuestionSuggestions = async (formData) => {
@@ -52,8 +90,6 @@ function ChatBox (){
                     expectedSpendingTime,
                 } = formData
         
-                console.log('here')
-                console.log(queCtx.formData)
                 const messages = [
                         {
                             "role": "system",
@@ -61,11 +97,10 @@ function ChatBox (){
                         },
                         {
                             "role": "user",
-                            "content": "Please generate five questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array"
+                            "content": "Please generate five questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions"
                         },
                     ];
             
-                console.log(messages);
                 const response = await openai.createChatCompletion({
                     model: "gpt-3.5-turbo",
                     messages: messages,
@@ -78,14 +113,11 @@ function ChatBox (){
                     console.log(e)
                 }
         }
-        const getPromptSuggestions = async () => {
-            
-        }
         if (queCtx.formData !== null) {
             getQuestionSuggestions(queCtx.formData);
+            getPromptSuggestions(promptResponseArray)
         }
-    }, [queCtx.formData?.taskTopic]);
-                      
+    }, [queCtx.formData?.taskTopic]);                      
 
     // to handle automatic scrolling to the end
     useEffect(() => {
@@ -143,6 +175,7 @@ function ChatBox (){
             setPromptResponseArray([...array])
             // Save the response to Firestore database
             await saveResponseToFirestore(message, promptID, tempResponseID);
+            getPromptSuggestions(array)
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -170,9 +203,23 @@ function ChatBox (){
         setMsgEntryText(value)
     }
     var questionSuggestionsComp = null
+    var promptSuggestionsComp = null
     if (questionsSuggestions.length > 0){
-        console.log(questionsSuggestions)
         questionSuggestionsComp = questionsSuggestions.map((question, index) => {
+            return (
+                <div
+                    value={question} 
+                    key={'q-div-' + index} 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-[11px] max-w-[223px] text-[#142838]' 
+                    onClick={() => handleQuestionClicked(question)}
+                  >
+                    <p>{question}</p>
+                </div>
+            )
+        })
+    }
+    if (promptSuggestions.length > 0){
+        promptSuggestionsComp = promptSuggestions.map((question, index) => {
             return (
                 <div
                     value={question} 
@@ -227,17 +274,22 @@ function ChatBox (){
 
     return(
         <div className="bg-[#2f4454] flex w-full h-full justify-center flex-col" >         
-            <div className='w-full mb-40'>
+            <div className='w-full mb-56'>
                 {messageComponents}
                 {isLoading && <Prompt text='Loading...' bgColor={bgObj.ai} profile_image={ai_profile} />}
             </div>
-            <div className="fixed bottom-[100px] flex flex-row space-x-4 w-fit max-w-[75%] left-1/2 transform -translate-x-1/2">
+            {questionsSuggestions.length > 0 && <div className="fixed bottom-[170px] flex flex-row space-x-4 w-fit max-w-[75%] ml-4">
                 <h1 className='text-[#D9D9D9]'>Questions</h1>
                 {questionSuggestionsComp}
-            </div>
-            <div className='fixed bottom-0 mb-8 w-[50%] flex flex-col left-1/2 transform -translate-x-1/2'>
+            </div>}
+            {promptSuggestions.length > 0 && <div className="fixed bottom-[100px] flex flex-row space-x-4 w-fit max-w-[75%] ml-4 mt-4">
+                <h1 className='text-[#D9D9D9]'>Prompts</h1>
+                {promptSuggestionsComp}
+            </div>}
+            <div className='fixed bottom-0 mb-8 w-[50%] flex flex-col left-[60%] transform -translate-x-1/2 '>
                 <MsgEntry 
                     msgEntryText={msgEntryText}
+                    setPromptSuggestions={setPromptSuggestions}
                     setMsgEntryText={setMsgEntryText}
                     setPromptID = {setPromptID}
                     responseID = {responseID}

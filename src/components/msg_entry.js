@@ -28,6 +28,7 @@ const MsgEntry = (props) => {
     const sendPrompt = async (e) => {
         const newMessage = textRef.current.value
         props.setMsgEntryText('')
+        props.setPromptSuggestions([])
         if (newMessage.trim() != ''){
             // Save the prompt to Firestore database
             try {
