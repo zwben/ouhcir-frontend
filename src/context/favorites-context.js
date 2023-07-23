@@ -18,13 +18,15 @@ export const FavouritesContextProvider = (props) => {
     // Get all the favourites
     useEffect(() => {
         const fetchFavourites = async () => {
-            try {
-                const q = query(collection(db, 'favourites'), where('taskID', '==', taskCtx.taskID));
-                const querySnapshot = await getDocs(q);
-                const favouritesData = querySnapshot.docs[0]?.data().favourites
-                setFavourites(favouritesData);
-            } catch (error) {
-                console.error('Error fetching favourites:', error);
+            if(taskCtx.taskID){
+                try {
+                    const q = query(collection(db, 'favourites'), where('taskID', '==', taskCtx.taskID));
+                    const querySnapshot = await getDocs(q);
+                    const favouritesData = querySnapshot.docs[0]?.data().favourites
+                    setFavourites(favouritesData);
+                } catch (error) {
+                    console.error('Error fetching favourites:', error);
+                }
             }
         };
         fetchFavourites();

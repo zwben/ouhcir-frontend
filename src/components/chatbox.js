@@ -95,28 +95,31 @@ function ChatBox (){
     // To get the chat history
     useEffect(() => {
         const fetchChatHistory = async () => {
-            try {
-                const promptRef = collection(db, 'chatsInduvidual');
-        
-                // Add a where clause to filter by taskID
-                const q = query(
-                    promptRef,
-                    where('taskID', '==', taskCtx?.taskID || ''),
-                    orderBy('timestamp', 'asc')
-                );
-        
-                const querySnapshot = await getDocs(q);
-                const chatHistory = [];
-                
-                querySnapshot.forEach((doc) => {
-                    const { role, prompt, id } = doc.data();
-                    chatHistory.push({ role, content: prompt, id });
-                });
-                setPromptResponseArray(chatHistory);
-            } catch (error) {
-                console.error('Error fetching chat history:', error);
+            if (taskCtx.taskID){
+                try {
+                    const promptRef = collection(db, 'chatsInduvidual');
+            
+                    // Add a where clause to filter by taskID
+                    const q = query(
+                        promptRef,
+                        where('taskID', '==', taskCtx?.taskID),
+                        orderBy('timestamp', 'asc')
+                    );
+            
+                    const querySnapshot = await getDocs(q);
+                    const chatHistory = [];
+                    
+                    querySnapshot.forEach((doc) => {
+                        const { role, prompt, id } = doc.data();
+                        chatHistory.push({ role, content: prompt, id });
+                    });
+                    setPromptResponseArray(chatHistory);
+                } catch (error) {
+                    console.error('Error fetching chat history:', error);
+                }
             }
             };
+        
       
         fetchChatHistory();
       }, [taskCtx?.taskID]);
