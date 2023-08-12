@@ -6,7 +6,7 @@ import { db } from "../firebase-config";
 import { openai } from "../openai-config";
 
 const Questionnaire = (props) => {
-    const [fimiliaritySelectedOption, setFimiliaritySelectedOption] = useState(-1);
+    const [familiaritySelectedOption, setFamiliaritySelectedOption] = useState(-1);
     const [complexitySelectedOption, setComplexitySelectedOption] = useState(-1)
     const [expectationSelectedOption, setExpectationSelectedOption] = useState(-1)
     const [timeExpectationSelectedOption, setTimeExpectationSelectedOption] = useState(-1)
@@ -20,8 +20,8 @@ const Questionnaire = (props) => {
     const [other, setOther] = useState('')
     const [taskTypeCheckboxes, setTaskTypeCheckboxes] = useState([]);   // list to containt checkbox values
     // For GPT generated options
-    const [topicFimiliaritySpecificOptions, setTopicFimiliaritySpecificOptions] = useState([])
-    const [topicFimiliaritySpecificSelectedOption, seTopicFimiliaritySpecificSelectedOption] = useState(-1)
+    const [topicFamiliaritySpecificOptions, setTopicFamiliaritySpecificOptions] = useState([])
+    const [topicFamiliaritySpecificSelectedOption, seTopicFamiliaritySpecificSelectedOption] = useState(-1)
     const [expectedComplexitySpecificOptions, setExpectedComplexitySpecificOptions] = useState([])
     const [expectedComplexitySpecificSelectedOption, setExpectedComplexitySpecificSelectedOption] = useState(-1)
     const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +58,7 @@ const Questionnaire = (props) => {
     };
   
     const handleButtonClick = (buttonNumber) => {
-        setFimiliaritySelectedOption(buttonNumber);
+        setFamiliaritySelectedOption(buttonNumber);
     };
 
     const handleSubmit = async () => {
@@ -78,9 +78,9 @@ const Questionnaire = (props) => {
                 const formData = {
                     'userID': authCtx.user.uid,
                     'taskTopic': taskTopic,
-                    'topicFimiliarityBasic': fimiliaritySelectedOption + 1,
-                    'topicFimiliaritySpecificOptions': topicFimiliaritySpecificOptions,
-                    'topicFimiliaritySpecific': topicFimiliaritySpecificSelectedOption + 1,
+                    'topicFamiliarityBasic': familiaritySelectedOption + 1,
+                    'topicFamiliaritySpecificOptions': topicFamiliaritySpecificOptions,
+                    'topicFamiliaritySpecific': topicFamiliaritySpecificSelectedOption + 1,
                     'taskType': taskTypeCheckboxes,
                     'expectedComplexityBasic': complexitySelectedOption + 1,
                     'expectedComplexitySpecificOptions': expectedComplexitySpecificOptions,
@@ -104,7 +104,7 @@ const Questionnaire = (props) => {
             }
         };
           
-    const handleGenerateFimiliarity = async () => {
+    const handleGenerateFamiliarity = async () => {
         setIsLoading(true)
         const messages=[
             {
@@ -128,7 +128,7 @@ const Questionnaire = (props) => {
             const item = res[key];
             tempArray.push(`${key}. ${item.example}`);
         }
-        setTopicFimiliaritySpecificOptions(tempArray);
+        setTopicFamiliaritySpecificOptions(tempArray);
         setIsLoading(false);
     }
     const handleGenerateComplexity = async () => {
@@ -137,7 +137,7 @@ const Questionnaire = (props) => {
             {
               "role": "system",
               "content": `You are an teacher help the user learn the topic: ${taskTopic}.
-                     The user has a familiarity degree of (${fimiliaritySelectedOption} out of 5), 
+                     The user has a familiarity degree of (${familiaritySelectedOption} out of 5), 
                      stating "${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}".
                       Given this familiarity level, adjust your answers so that the user can understand better.`
             },
@@ -177,14 +177,14 @@ const Questionnaire = (props) => {
                     </input>
                 </div>
                 {/* Question 2 */}
-                <h1>2. Topic fimiliarity</h1>
+                <h1>2. Topic familiarity</h1>
                 <div className="flex flex-row pl-8 pr-16 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({length: 5}).map((_, index) => {
                         return (
                             <button
                                 key={index}
-                                className={`w-4 h-4 rounded-full border-[1px] border-white ${fimiliaritySelectedOption === index ? "bg-white" : ""}`}
+                                className={`w-4 h-4 rounded-full border-[1px] border-white ${familiaritySelectedOption === index ? "bg-white" : ""}`}
                                 onClick={() => handleButtonClick(index)}
                             ></button>
                         );
@@ -197,22 +197,22 @@ const Questionnaire = (props) => {
                 </div>
                 {/* Question 3 */}
                 {/* Generate Options Button */}
-                <h1>3. Topic fimiliarity specific</h1>
+                <h1>3. Topic familiarity specific</h1>
                 {!isLoading ? (
-                        <button className="inline-flex justify-center bg-white px-6 py-2 w-fit rounded-2xl text-black"onClick={handleGenerateFimiliarity}>Click to generate options</button>
+                        <button className="inline-flex justify-center bg-white px-6 py-2 w-fit rounded-2xl text-black"onClick={handleGenerateFamiliarity}>Click to generate options</button>
                     ) : (
                         <p className="text-white mt-4">Generating...</p>
                         )}
                         {/* Display Options */}
-                        {topicFimiliaritySpecificOptions.length > 0 && !isLoading && (
+                        {topicFamiliaritySpecificOptions.length > 0 && !isLoading && (
                         <div className="flex flex-col pr-16 space-y-4 justify-between">
-                            {topicFimiliaritySpecificOptions.map((option, index) => (
+                            {topicFamiliaritySpecificOptions.map((option, index) => (
                                 <div key={index} className="flex items-center flex-row">
                                     <div>
                                         <button
                                             value={option}
-                                            className={`w-4 h-4 rounded-full border-[1px] border-white ${topicFimiliaritySpecificSelectedOption === index ? "bg-white" : ""}`}
-                                            onClick={() => seTopicFimiliaritySpecificSelectedOption(index)}
+                                            className={`w-4 h-4 rounded-full border-[1px] border-white ${topicFamiliaritySpecificSelectedOption === index ? "bg-white" : ""}`}
+                                            onClick={() => seTopicFamiliaritySpecificSelectedOption(index)}
                                         ></button>
                                     </div>
                                     <label className="ml-2 text-white">

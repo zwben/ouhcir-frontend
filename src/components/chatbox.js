@@ -41,11 +41,11 @@ function ChatBox (){
         if (response !== '' || promptResponseArray.length >=2 ){
             try{
                 const arrLength = promptResponseArray.length
-                const {taskTopic, topicFimiliarityBasic, topicFimiliaritySpecific, topicFimiliaritySpecificOptions, expectedComplexityBasic, expectedComplexitySpecificOptions, expectedComplexitySpecificSelectedOption, expectedSpendingTime,} = queCtx.formData
+                const {taskTopic, topicFamiliarityBasic, topicFamiliaritySpecific, topicFamiliaritySpecificOptions, expectedComplexityBasic, expectedComplexitySpecificOptions, expectedComplexitySpecificSelectedOption, expectedSpendingTime,} = queCtx.formData
                 const messages = [
                         {
                             "role": "system",
-                            "content": `You are a teacher help the user learn the topic: ${taskTopic || ''}. The user has a familiarity degree of (${topicFimiliarityBasic} out of 5), stating ${topicFimiliaritySpecificOptions[topicFimiliaritySpecific]}".  The user think the complexity of this task (${expectedComplexityBasic} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to fully complete the task. Given the familiarity level, complexity level, and user expectation, adjust your answers so that the user can understand better.`
+                            "content": `You are a teacher help the user learn the topic: ${taskTopic || ''}. The user has a familiarity degree of (${topicFamiliarityBasic} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecific]}".  The user think the complexity of this task (${expectedComplexityBasic} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to fully complete the task. Given the familiarity level, complexity level, and user expectation, adjust your answers so that the user can understand better.`
                         },
                     ];
                 const filteredPromptResponseArray = promptResponseArray.map(({ id, ...rest }) => rest);
@@ -79,9 +79,9 @@ function ChatBox (){
             try{
                 const {
                     taskTopic,
-                    topicFimiliarityBasic,
-                    topicFimiliaritySpecific,
-                    topicFimiliaritySpecificOptions,
+                    topicFamiliarityBasic,
+                    topicFamiliaritySpecific,
+                    topicFamiliaritySpecificOptions,
                     expectedComplexityBasic,
                     expectedComplexitySpecificOptions,
                     expectedComplexitySpecificSelectedOption,
@@ -91,7 +91,7 @@ function ChatBox (){
                 const messages = [
                         {
                             "role": "system",
-                            "content": `You are a teacher help the user learn the topic: ${taskTopic || ''}. The user has a familiarity degree of (${topicFimiliarityBasic} out of 5), stating ${topicFimiliaritySpecificOptions[topicFimiliaritySpecific]}".  The user think the complexity of this task (${expectedComplexityBasic} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to fully complete the task. Given the familiarity level, complexity level, and user expectation, adjust your answers so that the user can understand better.`
+                            "content": `You are a teacher help the user learn the topic: ${taskTopic || ''}. The user has a familiarity degree of (${topicFamiliarityBasic} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecific]}".  The user think the complexity of this task (${expectedComplexityBasic} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to fully complete the task. Given the familiarity level, complexity level, and user expectation, adjust your answers so that the user can understand better.`
                         },
                         {
                             "role": "user",
