@@ -1,6 +1,6 @@
 import {useState, useRef, useContext} from 'react';
-import send_message_icon from "../assets/msg_entry/send_message_icon.svg"
-import microphone_icon from "../assets/msg_entry/microphone_icon.svg"
+import send_message_icon from "../assets/MsgEntry/send_message_icon.svg"
+import microphone_icon from "../assets/MsgEntry/microphone_icon.svg"
 import TaskContext from '../context/task-context';
 import AuthContext from '../context/auth-context';
 import { db } from '../firebase-config';

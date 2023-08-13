@@ -152,7 +152,7 @@ const Questionnaire = (props) => {
         const response = await openai.createChatCompletion({
             model:"gpt-3.5-turbo",
             messages:messages, 
-            max_tokens: 256,
+            max_tokens: 512,
         })
         const res = JSON.parse(response.data.choices[0].message.content);
         const tempArray = [];
@@ -181,7 +181,12 @@ const Questionnaire = (props) => {
                 {/* Generate Options Button */}
                 <h1>2. Topic familiarity (AI generated options) </h1>
                 {!isLoading ? (
-                        <button className="inline-flex justify-center bg-white px-6 py-2 w-fit rounded-2xl text-black"onClick={handleGenerateFamiliarity}>Click to generate options</button>
+                        <button 
+                            className="inline-flex justify-center bg-white px-6 py-2 w-fit rounded-2xl text-black"
+                            onClick={handleGenerateFamiliarity}
+                            >
+                                Click to generate options
+                        </button>
                     ) : (
                         <p className="text-white mt-4">Generating...</p>
                         )}

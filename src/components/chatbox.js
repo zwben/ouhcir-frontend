@@ -1,6 +1,6 @@
 import {useState, useContext} from 'react';
 import { useRef, useEffect } from 'react';
-import MsgEntry from './msg_entry'
+import MsgEntry from './MsgEntry'
 import Prompt from './prompt';
 
 import { openai } from '../openai-config';
