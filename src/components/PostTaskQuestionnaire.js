@@ -1,7 +1,8 @@
 import { useContext, useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "../firebase-config";
+import { auth, db } from "../firebase-config";
 import TaskContext from "../context/task-context";
+import AuthContext from "../context/auth-context";
 
 const PostTaskQuestionnaire = (props) => {
     const [gainConfirmation, setGainConfirmation] = useState(null);
@@ -10,8 +11,10 @@ const PostTaskQuestionnaire = (props) => {
     const [recommendation, setRecommendation] = useState(null);
     const [encounteredProblems, setEncounteredProblems] = useState([]);
     const [otherChallenges, setOtherChallenges] = useState('');
+    const [otherFeedback, setOtherFeedback] = useState('')
 
     const taskCtx = useContext(TaskContext)
+    const authCtx = useContext(AuthContext)
     
     // Array of encountered problems with subgroups
     const encounteredProblemsList = [
@@ -83,12 +86,15 @@ const PostTaskQuestionnaire = (props) => {
         if (shouldProceed) {
             // Create the formData object and populate it with the values from state
             const formData = {
+                taskID: taskCtx.taskID,
+                userID: authCtx?.user.uid,
                 gainConfirmation: gainConfirmation + 1,
                 costConfirmation: costConfirmation + 1,
                 satisfaction: satisfaction + 1,
                 recommendation: recommendation + 1,
-                encounteredProblems: encounteredProblems,
-                otherChallenges: otherChallenges,
+                encounteredProblems,
+                otherChallenges,
+                otherFeedback,
             };
 
             try {
@@ -100,6 +106,7 @@ const PostTaskQuestionnaire = (props) => {
                 props.setShowPostTaskQuestionnaire(false);
                 // remove the task from localstorage
                 taskCtx.removeTask();
+                window.location.reload()
             } catch (error) {
                 console.error('Error adding document:', error);
             }
@@ -192,8 +199,8 @@ const PostTaskQuestionnaire = (props) => {
                     <h1>Somewhat likely</h1>
                     <h1>Very likely</h1>
                 </div>
-                <h1>Encountered problems</h1>
-                {/* Question 3 */}
+                <h1>5. Encountered problems</h1>
+                {/* Question 5 */}
                 <div className="flex flex-col pl-8 pr-16 space-y-3">
                     {/* Make checkboxes using array with subgroups */}
                     {encounteredProblemsList.map((group, groupIndex) => (
@@ -221,6 +228,16 @@ const PostTaskQuestionnaire = (props) => {
                         }}
                     />
                     </div>
+                </div>
+                {/* Question 6 */}
+                <h1>6. Other feedback</h1>
+                <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
+                    <input 
+                        className="w-full bg-transparent outline-none px-2 h-7"
+                        onChange={(e) => {
+                            setOtherFeedback(e.target.value)
+                        }}>    
+                    </input>
                 </div>
             </div>
             <div className="flex flex-row justify-around mt-8">
