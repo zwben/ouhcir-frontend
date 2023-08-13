@@ -6,8 +6,6 @@ import { db } from "../firebase-config";
 import { openai } from "../openai-config";
 
 const Questionnaire = (props) => {
-    const [familiaritySelectedOption, setFamiliaritySelectedOption] = useState(-1);
-    const [complexitySelectedOption, setComplexitySelectedOption] = useState(-1)
     const [expectationSelectedOption, setExpectationSelectedOption] = useState(-1)
     const [timeExpectationSelectedOption, setTimeExpectationSelectedOption] = useState(-1)
     const [answerQualitySelectedOption, setAnswerQualitySelectedOption] = useState(-1)
@@ -57,10 +55,6 @@ const Questionnaire = (props) => {
       }
     };
   
-    const handleButtonClick = (buttonNumber) => {
-        setFamiliaritySelectedOption(buttonNumber);
-    };
-
     const handleSubmit = async () => {
         // Confirm is the user actually wants to save
         const shouldProceed = window.confirm('Are you sure you want to submit the form?');
@@ -77,13 +71,11 @@ const Questionnaire = (props) => {
             try {
                 const formData = {
                     'userID': authCtx.user.uid,
-                    'taskTopic': taskTopic,
-                    'topicFamiliarityBasic': familiaritySelectedOption + 1,
-                    'topicFamiliaritySpecificOptions': topicFamiliaritySpecificOptions,
+                    taskTopic,
+                    topicFamiliaritySpecificOptions,
                     'topicFamiliaritySpecific': topicFamiliaritySpecificSelectedOption + 1,
                     'taskType': taskTypeCheckboxes,
-                    'expectedComplexityBasic': complexitySelectedOption + 1,
-                    'expectedComplexitySpecificOptions': expectedComplexitySpecificOptions,
+                    expectedComplexitySpecificOptions,
                     expectedComplexitySpecificSelectedOption,
                     'expectedOutcome': finalExpectationType,
                     'expectedNumberOfPrompts': promptsNum,
@@ -106,6 +98,7 @@ const Questionnaire = (props) => {
           
     const handleGenerateFamiliarity = async () => {
         setIsLoading(true)
+        console.log(taskTopic)
         const messages=[
             {
               "role": "system",
@@ -117,16 +110,24 @@ const Questionnaire = (props) => {
                         description and examples, for users to better understand which familiarity level represent. 
                         You output must be in the json format with the keys: degree, {description, and example}`
             }]
+        console.log(messages)
         const response = await openai.createChatCompletion({
             model:"gpt-3.5-turbo",
             messages:messages, 
-            max_tokens: 256,
+            max_tokens: 512,
         })
-        const res = JSON.parse(response.data.choices[0].message.content);
+        console.log(response.data.choices[0].message.content)
         const tempArray = [];
-        for (const key in res) {
-            const item = res[key];
-            tempArray.push(`${key}. ${item.example}`);
+        try{
+            const res = JSON.parse(response.data.choices[0].message.content);
+            var i = 1
+            for (const key in res) {
+                const item = res[key];
+                tempArray.push(`${i}. ${item.example}`);
+                i += 1
+            }
+        } catch(e){
+            console.log(e)
         }
         setTopicFamiliaritySpecificOptions(tempArray);
         setIsLoading(false);
@@ -137,7 +138,7 @@ const Questionnaire = (props) => {
             {
               "role": "system",
               "content": `You are an teacher help the user learn the topic: ${taskTopic}.
-                     The user has a familiarity degree of (${familiaritySelectedOption} out of 5), 
+                     The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
                      stating "${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}".
                       Given this familiarity level, adjust your answers so that the user can understand better.`
             },
@@ -177,27 +178,8 @@ const Questionnaire = (props) => {
                     </input>
                 </div>
                 {/* Question 2 */}
-                <h1>2. Topic familiarity</h1>
-                <div className="flex flex-row pl-8 pr-16 justify-between">
-                    {/* Array to generate the radio buttons */}
-                    {Array.from({length: 5}).map((_, index) => {
-                        return (
-                            <button
-                                key={index}
-                                className={`w-4 h-4 rounded-full border-[1px] border-white ${familiaritySelectedOption === index ? "bg-white" : ""}`}
-                                onClick={() => handleButtonClick(index)}
-                            ></button>
-                        );
-                        })}
-                </div>
-                <div className="flex justify-between pl-4 pr-8">
-                    <h1>Not at all</h1>
-                    <h1>Somewhat    </h1>
-                    <h1>Extremely</h1>
-                </div>
-                {/* Question 3 */}
                 {/* Generate Options Button */}
-                <h1>3. Topic familiarity specific</h1>
+                <h1>2. Topic familiarity (AI generated options) </h1>
                 {!isLoading ? (
                         <button className="inline-flex justify-center bg-white px-6 py-2 w-fit rounded-2xl text-black"onClick={handleGenerateFamiliarity}>Click to generate options</button>
                     ) : (
@@ -223,7 +205,7 @@ const Questionnaire = (props) => {
                         </div>
                 )}
 
-                {/* Question 4 */}
+                {/* Question 3 */}
                 <h1>3. Task type (check all that apply)</h1>
                 <div className="flex flex-col space-y-3">
                     {/* // Make checkboxes using array */}
@@ -248,30 +230,10 @@ const Questionnaire = (props) => {
                             }}></input>
                     </div>
                 </div>
-                {/* Question 5 */}
-                <h1>4. How complex do you think it will be to complex this task?</h1>
-                <div className="flex flex-row pl-8 pr-16 justify-between">
-                    {/* Array to generate the radio buttons */}
-                    {Array.from({length: 5}).map((_, index) => {
-                        return (
-                            <button
-                                key={index}
-                                className={`w-4 h-4 rounded-full border-[1px] border-white ${complexitySelectedOption === index ? "bg-white" : ""}`}
-                                onClick={() => {
-                                    setComplexitySelectedOption(index)
-                                }}
-                            ></button>
-                        );
-                        })}
-                </div>
-                <div className="flex justify-between pl-4 pr-8">
-                    <h1>Not at all</h1>
-                    <h1>Somewhat    </h1>
-                    <h1>Extremely</h1>
-                </div>
-                {/* Question 6 */}
+                
+                {/* Question 4 */}
                 {/* Generate Options Button */}
-                <h1>6. Expected complexity specific</h1>
+                <h1>4. Expected complexity (AI generated options)</h1>
                 {!isLoading ? (
                         <button className="inline-flex justify-center bg-white px-6 py-2 w-fit rounded-2xl text-black"onClick={handleGenerateComplexity}>Click to generate options</button>
                     ) : (
@@ -296,8 +258,8 @@ const Questionnaire = (props) => {
                             ))}
                         </div>
                 )}
-                {/* Question 7 */}
-                <h1>7. How do you expect to complete the task?</h1>
+                {/* Question 5 */}
+                <h1>5. How do you expect to complete the task?</h1>
                 <div className="flex flex-col pl-8 pr-16 space-y-4 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({length: 4}).map((_, index) => {
@@ -321,16 +283,16 @@ const Questionnaire = (props) => {
                         </input>
                     </div>
                 </div>
-                {/* Question 8*/}
-                <h1>8. How many prompts do you expect to formulate or reformulate prompt to achieve your expected outcome?</h1>
+                {/* Question 6*/}
+                <h1>6. How many prompts do you expect to formulate or reformulate prompt to achieve your expected outcome?</h1>
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
                     <input 
                         className="w-full bg-transparent outline-none px-2 h-7" contentEditable={true}
                         onChange={(e)=>{setPromptsNum(e.target.value)}}>
                     </input>
                 </div>
-                {/* Question 9*/}
-                <h1>9. How much time do you expect it will take to achieve your expected outcome?</h1>
+                {/* Question 7*/}
+                <h1>7. How much time do you expect it will take to achieve your expected outcome?</h1>
                 <div className="flex flex-col pl-8 pr-16 space-y-4 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({length: 3}).map((_, index) => {
@@ -348,8 +310,8 @@ const Questionnaire = (props) => {
                         );
                         })}
                 </div>
-                {/* Question 10 */}
-                <h1>10. How do you expect the quality of ChatGPT’s output toward achieving your outcome?</h1>
+                {/* Question 8 */}
+                <h1>8. How do you expect the quality of ChatGPT’s output toward achieving your outcome?</h1>
                 <div className="flex flex-col pl-8 pr-16 space-y-4 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({length: 5}).map((_, index) => {
@@ -369,8 +331,8 @@ const Questionnaire = (props) => {
                         );
                         })}
                 </div>
-                {/* Question 11 */}
-                <h1>11. How much time do you expect it will take to formulate prompts for a single information need (a simple task or one step of a complex task)?</h1>
+                {/* Question 9 */}
+                <h1>9. How much time do you expect it will take to formulate prompts for a single information need (a simple task or one step of a complex task)?</h1>
                 <div className="flex flex-col pl-8 pr-16 space-y-4 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({length: 5}).map((_, index) => {
@@ -390,8 +352,8 @@ const Questionnaire = (props) => {
                         );
                         })}
                 </div>
-                {/* Question 12 */}
-                <h1>12. What other cost or effort do you expect during the task?</h1>
+                {/* Question 10 */}
+                <h1>10. What other cost or effort do you expect during the task?</h1>
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
                     <input 
                         className="w-full bg-transparent outline-none px-2 h-7"
