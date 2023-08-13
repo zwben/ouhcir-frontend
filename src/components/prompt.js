@@ -36,17 +36,27 @@ const Prompt = (props) => {
                 </div>
             </div>
             <div className='flex-shrink-0 inline-flex space-x-4 pr-1 h-fit'>
-                <button onClick={handleStarred}>
+                <button 
+                    onClick={handleStarred}
+                    title="Favourite the prompt"
+                >
                     <img className='w-7' src={isStarred ? star_filled_icon : star_icon}/>
                 </button>
-                <button onClick={() => {
-                    setShowCommentPopup((prevValue) => !prevValue)
-                    }}>
+                <button 
+                    onClick={() => {
+                        setShowCommentPopup((prevValue) => !prevValue)
+                    }}
+                    title='Comment'    
+                >
                     <img className='w-6' src={comment_icon}/>
                 </button>
-                <button onClick={() => {
-                        setShowMoreActionsPopUp(true) 
-                        }}>
+                <button 
+                    onClick={() => {
+                            setShowMoreActionsPopUp(true) 
+                    }}
+                    title='More actions (Summarize, rate prompt)'
+
+                >
                     <img className='w-6' src={more_icon}/>
                 </button>
             </div>

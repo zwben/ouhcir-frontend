@@ -1,6 +1,6 @@
 import {useState, useRef, useContext} from 'react';
-import send_message_icon from "../assets/MsgEntry/send_message_icon.svg"
-import microphone_icon from "../assets/MsgEntry/microphone_icon.svg"
+import send_message_icon from "../assets/msg_entry/send_message_icon.svg"
+import microphone_icon from "../assets/msg_entry/microphone_icon.svg"
 import TaskContext from '../context/task-context';
 import AuthContext from '../context/auth-context';
 import { db } from '../firebase-config';
@@ -10,6 +10,8 @@ import { uid } from 'uid';
 const MsgEntry = (props) => {
      
     const [prompt, setPrompt] = useState(null);
+    const [typingStartTime, setTypingStartTime] = useState(null); // Timestamp for when user starts typing
+
     const textRef = useRef();  
     const taskCtx = useContext(TaskContext)
     const authCtx = useContext(AuthContext)
@@ -18,6 +20,9 @@ const MsgEntry = (props) => {
         if (textRef.current) {
             textRef.current.style.height = '7px'; // Reset the height 7px
             textRef.current.style.height = `${textRef.current.scrollHeight}px`; // Set the height to the scrollHeight
+            if (!typingStartTime) {
+                setTypingStartTime(new Date()); // Record the typing start time
+            }
         }
     };
 
@@ -41,7 +46,8 @@ const MsgEntry = (props) => {
                         prompt: newMessage,
                         userID: authCtx?.user.uid || '', 
                         role: 'user',
-                        timestamp: new Date(),
+                        typingStartTime,
+                        typingEndTime: new Date(),
                     });
                 props.setPrompt(newMessage)
                 const updatedMessagesArray = [...props.promptResponseArray, {role: "user", content: newMessage, id: promptID}];
@@ -55,6 +61,7 @@ const MsgEntry = (props) => {
             } catch (error) {
                 console.error("Error saving prompt:", error);
             }
+        setTypingStartTime(null); // Reset typing start time when message is sent
         }
     }
 
@@ -71,11 +78,16 @@ const MsgEntry = (props) => {
                         }}
                         onChange={handleTextareaChange}>
                     </textarea>
-                    <button>
+                    <button
+                        title='Microphone recording'
+                    >
                         <img src={microphone_icon}/>
                     </button>
             </div>
-            <button onClick={sendPrompt}>
+            <button 
+                onClick={sendPrompt}
+                title='Send prompt'
+            >
                 <img src={send_message_icon}/>
             </button>
 

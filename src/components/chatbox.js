@@ -162,17 +162,19 @@ function ChatBox (){
                 const { role, content } = message;
                 return { role, content };
             });
-          const completion = await openai.createChatCompletion({
-                model: "gpt-3.5-turbo",
-                messages: filteredMessages,
+            const typingStartTime = new Date()
+            const completion = await openai.createChatCompletion({
+                    model: "gpt-3.5-turbo",
+                    messages: filteredMessages,
                 });
             const message = completion.data.choices[0].message
+            const typingEndTime = new Date()
             const tempResponseID = uid()
             setResponseID(tempResponseID)
             array.push({...message, id: tempResponseID});
             setPromptResponseArray([...array])
             // Save the response to Firestore database
-            await saveResponseToFirestore(message, promptID, tempResponseID);
+            await saveResponseToFirestore(message, promptID, tempResponseID, typingStartTime, typingEndTime);
             getPromptSuggestions(array)
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -180,17 +182,18 @@ function ChatBox (){
         setIsLoading(false)
     }
 
-    const saveResponseToFirestore = async (message, promptID, tempResponseID) => {
+    const saveResponseToFirestore = async (message, promptID, tempResponseID, typingStartTime, typingEndTime) => {
         try {
             const promptRef = collection(db, 'chatsInduvidual');
-            const docRef = await addDoc(promptRef, {
+            await addDoc(promptRef, {
                 id: tempResponseID,
                 taskID: taskCtx?.taskID || '',
                 prompt: message.content,
                 responseTo: promptID,
                 userID: authCtx?.user.uid || '',
                 role: 'assistant',
-                timestamp: new Date(),
+                typingStartTime, 
+                typingEndTime,
             });
         } catch (error) {
             console.error("Error saving prompt:", error);
