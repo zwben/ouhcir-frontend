@@ -3,6 +3,8 @@ import star_filled from "../assets/navbar/star_filled.svg"
 import tick_icon from "../assets/navbar/tick_icon.svg"
 
 import { useState, useRef, useContext } from "react";
+import { collection, query, orderBy, getDocs, where, addDoc } from 'firebase/firestore';
+import { db } from "../firebase-config";
 import TaskContext from "../context/task-context";
 import FavouritesContext from "../context/favorites-context";
 //TODO: Add scrolling when a favourites is clicked
@@ -18,12 +20,51 @@ const Navbar = (props) => {
         setIsTaskNameEditable(false)
     }
 
-    const handleEndTask = () => {
-        // Confirm is the user actually wants to save
-        const shouldProceed = window.confirm('Are you sure you want to finish the task?');
-        if(shouldProceed){
-            props.setShowPostTaskQuestionnaire(true)
+    const canEndTask = async () => {
+        // get the chat history
+        try {
+            const chatsRef = collection(db, 'chatsInduvidual');
+    
+            // Add a where clause to filter by taskID
+            const q = query(
+                chatsRef,
+                where('taskID', '==', taskCtx?.taskID),
+                orderBy('typingEndTime', 'asc')
+            );
+    
+            const querySnapshot = await getDocs(q);
+            const chatHistory = [];
+            
+            querySnapshot.forEach((doc) => {
+                const { role, prompt, id, ratingID} = doc.data();
+                chatHistory.push({ role, content: prompt, id, ratingID });
+            });
+            for (const chatObj of chatHistory){
+                console.log(chatObj)
+                if (chatObj.role == 'assistant' && chatObj.ratingID === null ){
+                    console.log('here')
+                    return false
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching chat history:', error);
         }
+        return true
+    }
+
+    const handleEndTask = async () => {
+        // Check if all the outputs are rated
+        if (await canEndTask()){
+
+            // Confirm is the user actually wants to save
+            const shouldProceed = window.confirm('Are you sure you want to finish the task?');
+            if(shouldProceed){
+                props.setShowPostTaskQuestionnaire(true)
+            }
+        }else{
+            window.confirm('Please annotate (rate) all the prompts marked with red by clicking the three dots and "Rate response" button')
+        }
+
     }
     var favouritesComp = null;
     if (favCtx.favourites){

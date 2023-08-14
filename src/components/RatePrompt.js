@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
 
 const RatePrompt = (props) => {
@@ -23,9 +23,25 @@ const RatePrompt = (props) => {
                 // Save the form data to Firestore
                 const docRef = await addDoc(collection(db, "promptRatings"), formData);
                 console.log("Document written with ID:", docRef.id);
+                // Query for the chat document matching the promptID
+                const chatsCollection = collection(db, "chatsInduvidual"); 
+                const q = query(chatsCollection, where("id", "==", props.promptID));
 
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    // Get the first document (assuming only one document will match)
+                    const chatDoc = querySnapshot.docs[0];
+
+                    // Update the chat document with the new ratingID
+                    await updateDoc(chatDoc.ref, {
+                        ratingID: docRef.id
+                    });
+                } else {
+                    console.error("No matching chat document found for promptID:", props.promptID);
+                }
                 // Close the prompt and handle any further actions here (if needed)
                 props.setShowRatePrompt(false);
+                props.setIsPromptRated(new Date()) // to force rerender of useEffect to fetch the ratingID
             } catch (error) {
                 console.error("Error adding document:", error);
             }

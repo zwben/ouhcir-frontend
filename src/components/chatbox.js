@@ -18,6 +18,7 @@ import QueContext from '../context/que-context';
 function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
     const [showMoreActionsPopUp, setShowMoreActionsPopUp] = useState(false)
+    const [isPromptRated, setIsPromptRated] = useState(null) // to force a rerender of useEffect to see if a prompt has been rated
     const [prompt, setPrompt] = useState('')
     const [response, setResponse] = useState('')
     const [promptID, setPromptID] = useState('')
@@ -48,7 +49,7 @@ function ChatBox (){
                             "content": `You are a teacher help the user learn the topic: ${taskTopic || ''}. The user has a familiarity degree of (${topicFamiliarityBasic} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecific]}".  The user think the complexity of this task (${expectedComplexityBasic} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to fully complete the task. Given the familiarity level, complexity level, and user expectation, adjust your answers so that the user can understand better.`
                         },
                     ];
-                const filteredPromptResponseArray = promptResponseArray.map(({ id, ...rest }) => rest);
+                const filteredPromptResponseArray = promptResponseArray.map(({ id, ratingID, ...rest }) => rest);
 
                 // Push the second-to-last element without the 'id' property
                 messages.push(filteredPromptResponseArray[arrLength - 2]);
@@ -127,21 +128,21 @@ function ChatBox (){
         const fetchChatHistory = async () => {
             if (taskCtx.taskID){
                 try {
-                    const promptRef = collection(db, 'chatsInduvidual');
+                    const chatsRef = collection(db, 'chatsInduvidual');
             
                     // Add a where clause to filter by taskID
                     const q = query(
-                        promptRef,
+                        chatsRef,
                         where('taskID', '==', taskCtx?.taskID),
-                        orderBy('timestamp', 'asc')
+                        orderBy('typingEndTime', 'asc')
                     );
             
                     const querySnapshot = await getDocs(q);
                     const chatHistory = [];
                     
                     querySnapshot.forEach((doc) => {
-                        const { role, prompt, id } = doc.data();
-                        chatHistory.push({ role, content: prompt, id });
+                        const { role, prompt, id, ratingID} = doc.data();
+                        chatHistory.push({ role, content: prompt, id, ratingID });
                     });
                     setPromptResponseArray(chatHistory);
                 } catch (error) {
@@ -149,10 +150,8 @@ function ChatBox (){
                 }
             }
             };
-        
-      
         fetchChatHistory();
-      }, [taskCtx?.taskID]);
+      }, [taskCtx?.taskID, isPromptRated]);
 
     const getAPIResponse = async (array, promptID) => {  
         try {
@@ -187,6 +186,7 @@ function ChatBox (){
             const promptRef = collection(db, 'chatsInduvidual');
             await addDoc(promptRef, {
                 id: tempResponseID,
+                ratingID: null,
                 taskID: taskCtx?.taskID || '',
                 prompt: message.content,
                 responseTo: promptID,
@@ -245,7 +245,9 @@ function ChatBox (){
                 {message.role === 'user' ? (
                     <Prompt
                         divKey={`message-${index}`}
+                        role='user'
                         promptID = {message.id}
+                        setIsPromptRated={setIsPromptRated}
                         text={message.content}
                         showCommentPopup={showCommentPopup}
                         setShowCommentPopup={setShowCommentPopup}
@@ -259,6 +261,9 @@ function ChatBox (){
                     <Prompt
                         divKey={`message-${index}`}
                         promptID = {message.id}
+                        setIsPromptRated={setIsPromptRated}
+                        role='assistant'
+                        ratingID={message?.ratingID}
                         showCommentPopup={showCommentPopup}
                         setShowCommentPopup={setShowCommentPopup}
                         showMoreActionsPopUp={showMoreActionsPopUp}

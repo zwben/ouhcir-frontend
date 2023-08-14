@@ -41,6 +41,7 @@ const MsgEntry = (props) => {
                 props.setPromptID(promptID)
                 const docRef = await addDoc(promptRef, {
                         id: promptID,
+                        ratingID: null,
                         taskID: taskCtx?.taskID || '',
                         responseTo: props.responseID,
                         prompt: newMessage,
