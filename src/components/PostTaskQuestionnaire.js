@@ -5,13 +5,16 @@ import TaskContext from "../context/task-context";
 import AuthContext from "../context/auth-context";
 
 const PostTaskQuestionnaire = (props) => {
-    const [gainConfirmation, setGainConfirmation] = useState(null);
-    const [costConfirmation, setCostConfirmation] = useState(null);
-    const [satisfaction, setSatisfaction] = useState(null);
-    const [recommendation, setRecommendation] = useState(null);
+    const [gainConfirmation, setGainConfirmation] = useState(-1);
+    const [costConfirmation, setCostConfirmation] = useState(-1);
+    const [satisfaction, setSatisfaction] = useState(-1);
+    const [recommendation, setRecommendation] = useState(-1);
     const [encounteredProblems, setEncounteredProblems] = useState([]);
     const [otherChallenges, setOtherChallenges] = useState('');
     const [otherFeedback, setOtherFeedback] = useState('')
+
+    const [isFormValid, setIsFormValid] = useState(false); // State to track form validation
+    const [submitClicked, setSubmitClicked] = useState(false) // To show required field after submit button is pressed
 
     const taskCtx = useContext(TaskContext)
     const authCtx = useContext(AuthContext)
@@ -81,45 +84,73 @@ const PostTaskQuestionnaire = (props) => {
     };
 
     const handleSubmit = async () => {
-        // Confirm if the user actually wants to save
-        const shouldProceed = window.confirm('Are you sure you want to submit the form?');
-        if (shouldProceed) {
-            // Create the formData object and populate it with the values from state
-            const formData = {
-                taskID: taskCtx.taskID,
-                userID: authCtx?.user.uid,
-                gainConfirmation: gainConfirmation + 1,
-                costConfirmation: costConfirmation + 1,
-                satisfaction: satisfaction + 1,
-                recommendation: recommendation + 1,
-                encounteredProblems,
-                otherChallenges,
-                otherFeedback,
-            };
+        setSubmitClicked(true)
+        // Check if all questions are answered
+        if (isFormValid) {
+            // Confirm if the user actually wants to save
+            const shouldProceed = window.confirm('Are you sure you want to submit the form?');
+            if (shouldProceed) {
+                // Create the formData object and populate it with the values from state
+                const formData = {
+                    taskID: taskCtx.taskID,
+                    userID: authCtx?.user.uid,
+                    gainConfirmation: gainConfirmation + 1,
+                    costConfirmation: costConfirmation + 1,
+                    satisfaction: satisfaction + 1,
+                    recommendation: recommendation + 1,
+                    encounteredProblems,
+                    otherChallenges,
+                    otherFeedback,
+                };
 
-            try {
-                // Save the form data to Firestore
-                const docRef = await addDoc(collection(db, 'postTaskQuestionnaire'), formData);
-                console.log('Document written with ID:', docRef.id);
-                
-                // Hide the questionnaire 
-                props.setShowPostTaskQuestionnaire(false);
-                // remove the task from localstorage
-                taskCtx.removeTask();
-                window.location.reload()
-            } catch (error) {
-                console.error('Error adding document:', error);
+                try {
+                    // Save the form data to Firestore
+                    const docRef = await addDoc(collection(db, 'postTaskQuestionnaire'), formData);
+                    console.log('Document written with ID:', docRef.id);
+                    
+                    // Hide the questionnaire 
+                    props.setShowPostTaskQuestionnaire(false);
+                    // remove the task from localstorage
+                    taskCtx.removeTask();
+                    window.location.reload()
+                } catch (error) {
+                    console.error('Error adding document:', error);
+                }
+                setSubmitClicked(false)
             }
+        } else{
+            console.log(encounteredProblems)
+            alert('Please answer all questions before submitting.');
+        }
+    };
+
+    const handleShowWarning = () => {
+        if (
+            gainConfirmation !== -1 &&
+            costConfirmation !== -1 &&
+            satisfaction !== -1 &&
+            recommendation !== -1 &&
+            (encounteredProblems.length > 0 || encounteredProblems.includes("No challenges") || otherChallenges.trim() !== '')
+            ) {
+            setIsFormValid(true);
+        }else {
+            setIsFormValid(false);
         }
     };
 
     
     return(
-        <div className="flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl min-w-[30rem] max-h-[85%] overflow-auto">
+        <div 
+            className="flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl min-w-[30rem] max-h-[85%] overflow-auto"
+            onChange={handleShowWarning}
+        >
             <h1 className="text-white text-center">Post task Questionnaire</h1>
             {/* Questions */}
             <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
-                <h1>1. How much outcome did you obtain through this task?</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>1. How much outcome did you obtain through this task?</h1>
+                    {gainConfirmation === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 <div className="flex flex-row pl-8 pr-16 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({ length: 5 }).map((_, index) => {
@@ -139,7 +170,10 @@ const PostTaskQuestionnaire = (props) => {
                 </div>
 
                 {/* Question 2 */}
-                <h1>2. How much effort did it take for you to obtain the outcome through this task?</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>2. How much effort did it take for you to obtain the outcome through this task?</h1>
+                    {costConfirmation === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 <div className="flex flex-row pl-8 pr-16 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({ length: 5 }).map((_, index) => {
@@ -159,7 +193,11 @@ const PostTaskQuestionnaire = (props) => {
                 </div>
 
                 {/* Question 3 */}
-                <h1>3. Rate your satisfaction level with this task.</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>3. Rate your satisfaction level with this task.</h1>
+                    {satisfaction === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
+
                 <div className="flex flex-row pl-8 pr-16 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({ length: 5 }).map((_, index) => {
@@ -181,7 +219,10 @@ const PostTaskQuestionnaire = (props) => {
                 </div>
 
                 {/* Question 4 */}
-                <h1>4. If this task content will be shared in the online community to help other users with similar tasks, how likely is it for you to recommend your prompts and ChatGPT’s output?</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>4. If this task content will be shared in the online community to help other users with similar tasks, how likely is it for you to recommend your prompts and ChatGPT’s output?</h1>
+                    {recommendation === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 <div className="flex flex-row pl-8 pr-16 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({ length: 5 }).map((_, index) => {
@@ -199,7 +240,10 @@ const PostTaskQuestionnaire = (props) => {
                     <h1>Somewhat likely</h1>
                     <h1>Very likely</h1>
                 </div>
-                <h1>5. Encountered problems</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>5. Encountered problems</h1>
+                    {encounteredProblems.length <= 1 && submitClicked && <p className="text-red-500 text-sm">required. Select at least 2</p>}
+                </div>
                 {/* Question 5 */}
                 <div className="flex flex-col pl-8 pr-16 space-y-3">
                     {/* Make checkboxes using array with subgroups */}
@@ -221,12 +265,12 @@ const PostTaskQuestionnaire = (props) => {
                     ))}
                     {/* Text input for other problems */}
                     <div className="flex flex-row justify-between rounded-md bg-[#2F4454] py-1 mx-4">
-                    <input
-                        className="w-full bg-transparent outline-none px-2 h-7"
-                        onChange={(e) => {
-                            setOtherChallenges(e.target.value);
-                        }}
-                    />
+                        <input
+                            className="w-full bg-transparent outline-none px-2 h-7"
+                            onChange={(e) => {
+                                setOtherChallenges(e.target.value);
+                            }}
+                        />
                     </div>
                 </div>
                 {/* Question 6 */}

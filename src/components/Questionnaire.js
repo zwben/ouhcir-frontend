@@ -10,9 +10,11 @@ const Questionnaire = (props) => {
     const [timeExpectationSelectedOption, setTimeExpectationSelectedOption] = useState(-1)
     const [answerQualitySelectedOption, setAnswerQualitySelectedOption] = useState(-1)
     const [promptFormulateSelectedOption, setPromptFormulateSelectedOption] = useState(-1)
+    const [isFormValid, setIsFormValid] = useState(false); // State to track form validation
+    const [submitClicked, setSubmitClicked] = useState(false) // To show required field after submit button is pressed
     // labels
     const [taskTopic,setTaskTopic] = useState('')
-    const [promptsNum, setPromptsNum] = useState(0) 
+    const [promptsNum, setPromptsNum] = useState('') 
     const [otherTaskType, setOtherTaskType] = useState('')
     const [otherExpectedOutcome, setOtherExpectedOutcome] = useState('')
     const [other, setOther] = useState('')
@@ -56,45 +58,72 @@ const Questionnaire = (props) => {
     };
   
     const handleSubmit = async () => {
-        // Confirm is the user actually wants to save
-        const shouldProceed = window.confirm('Are you sure you want to submit the form?');
-        if(shouldProceed){
-            // check if taskTypeCheckboxes include other, and append the value of the label to it
-            if (taskTypeCheckboxes.includes('Other')){
-                taskTypeCheckboxes.splice(taskTypeCheckboxes.indexOf('Other'))
-                taskTypeCheckboxes.push('Other: ' + otherTaskType)
+        setSubmitClicked(true)
+        // Check if all questions are answered
+        if (isFormValid) {
+            // Confirm is the user actually wants to save
+            const shouldProceed = window.confirm('Are you sure you want to submit the form?');
+            if(shouldProceed){
+                // check if taskTypeCheckboxes include other, and append the value of the label to it
+                if (taskTypeCheckboxes.includes('Other')){
+                    taskTypeCheckboxes.splice(taskTypeCheckboxes.indexOf('Other'))
+                    taskTypeCheckboxes.push('Other: ' + otherTaskType)
+                }
+                var finalExpectationType = expectationTypes[expectationSelectedOption]
+                if (finalExpectationType === 'Other'){
+                    finalExpectationType = 'Other: ' + otherExpectedOutcome
+                }
+                try {
+                    const formData = {
+                        'userID': authCtx.user.uid,
+                        taskTopic,
+                        topicFamiliaritySpecificOptions,
+                        'topicFamiliaritySpecific': topicFamiliaritySpecificSelectedOption + 1,
+                        'taskType': taskTypeCheckboxes,
+                        expectedComplexitySpecificOptions,
+                        expectedComplexitySpecificSelectedOption,
+                        'expectedOutcome': finalExpectationType,
+                        'expectedNumberOfPrompts': promptsNum,
+                        'expectedSpendingTime': timeExpectationList[timeExpectationSelectedOption],
+                        'expectedAnswerQuality': answerQualityList[answerQualitySelectedOption],
+                        'expectedPromptFormulateTime': promptFormulateTimeList[promptFormulateSelectedOption],
+                        'OtherExpectationsOfCost': other
+                    };
+                    const docRef = await addDoc(collection(db, 'pre_task_questionaire'), formData);
+                    console.log('Document written with ID:', docRef.id);
+                    taskCtx.saveTask(taskTopic, docRef.id)
+                    props.setShowQuestionnaire(false)
+                    alert('You questionnaire is saved. You can now start interacting with the chatbot.')
+                    window.location.reload()
+                    } catch (error) {
+                        console.error('Error adding document:', error);
+                }
+                setSubmitClicked(false)
             }
-            var finalExpectationType = expectationTypes[expectationSelectedOption]
-            if (finalExpectationType === 'Other'){
-                finalExpectationType = 'Other: ' + otherExpectedOutcome
-            }
-            try {
-                const formData = {
-                    'userID': authCtx.user.uid,
-                    taskTopic,
-                    topicFamiliaritySpecificOptions,
-                    'topicFamiliaritySpecific': topicFamiliaritySpecificSelectedOption + 1,
-                    'taskType': taskTypeCheckboxes,
-                    expectedComplexitySpecificOptions,
-                    expectedComplexitySpecificSelectedOption,
-                    'expectedOutcome': finalExpectationType,
-                    'expectedNumberOfPrompts': promptsNum,
-                    'expectedSpendingTime': timeExpectationList[timeExpectationSelectedOption],
-                    'expectedAnswerQuality': answerQualityList[answerQualitySelectedOption],
-                    'expectedPromptFormulateTime': promptFormulateTimeList[promptFormulateSelectedOption],
-                    'OtherExpectationsOfCost': other
-                };
-                const docRef = await addDoc(collection(db, 'pre_task_questionaire'), formData);
-                console.log('Document written with ID:', docRef.id);
-                taskCtx.saveTask(taskTopic, docRef.id)
-                props.setShowQuestionnaire(false)
-                alert('You questionnaire is saved. You can now start interacting with the chatbot.')
-                window.location.reload()
-            } catch (error) {
-                console.error('Error adding document:', error);
-            }
-            }
+        }else {
+            setIsFormValid(false);
+            alert('Please answer all questions before submitting.');
+        }
+
+
         };
+    const handleShowWarning = () => {
+        if (
+            taskTopic !== '' &&
+            topicFamiliaritySpecificSelectedOption !== -1 &&
+            taskTypeCheckboxes.length > 0 &&
+            expectedComplexitySpecificSelectedOption !== -1 &&
+            expectationSelectedOption !== -1 &&
+            promptsNum !== '' &&
+            timeExpectationSelectedOption !== -1 &&
+            answerQualitySelectedOption !== -1 &&
+            promptFormulateSelectedOption !== -1
+        ) {
+            setIsFormValid(true);
+        }else {
+            setIsFormValid(false);
+        }
+    }
           
     const handleGenerateFamiliarity = async () => {
         setIsLoading(true)
@@ -165,12 +194,17 @@ const Questionnaire = (props) => {
     }
 
     return(
-        <div className="flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl min-w-[30rem] max-h-[85%] overflow-auto">
+        <div className="flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl min-w-[30rem] max-h-[85%] overflow-auto"
+            onChange={handleShowWarning}>
             <h1 className="text-white text-center">Pre-task Questionnaire</h1>
             {/* Questions */}
             <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
                 {/* Question 1 */}
-                <h1>1. Task name</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>1. Task name  *</h1>
+                    {!taskTopic && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
+                
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454] mr-9 py-1">
                     <input 
                         className="w-full bg-transparent outline-none px-2 h-7"
@@ -179,7 +213,10 @@ const Questionnaire = (props) => {
                 </div>
                 {/* Question 2 */}
                 {/* Generate Options Button */}
-                <h1>2. Topic familiarity (AI generated options) </h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>2. Topic familiarity (AI generated options)  *</h1>
+                    {topicFamiliaritySpecificOptions.length === 0 && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 {!isLoading ? (
                         <button 
                             className="inline-flex justify-center bg-white px-6 py-2 w-fit rounded-2xl text-black"
@@ -211,7 +248,10 @@ const Questionnaire = (props) => {
                 )}
 
                 {/* Question 3 */}
-                <h1>3. Task type (check all that apply)</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>3. Task type (check all that apply)  *</h1>
+                    {taskTypeCheckboxes.length === 0 && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 <div className="flex flex-col space-y-3">
                     {/* // Make checkboxes using array */}
                     {taskTypes.map((taskName, index) => (
@@ -238,7 +278,10 @@ const Questionnaire = (props) => {
                 
                 {/* Question 4 */}
                 {/* Generate Options Button */}
-                <h1>4. Expected complexity (AI generated options)</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>4. Expected complexity (AI generated options)  *</h1>
+                    {expectedComplexitySpecificOptions.length === 0  && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 {!isLoading ? (
                         <button className="inline-flex justify-center bg-white px-6 py-2 w-fit rounded-2xl text-black"onClick={handleGenerateComplexity}>Click to generate options</button>
                     ) : (
@@ -264,7 +307,10 @@ const Questionnaire = (props) => {
                         </div>
                 )}
                 {/* Question 5 */}
-                <h1>5. How do you expect to complete the task?</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>5. How do you expect to complete the task?  *</h1>
+                    {expectationSelectedOption === -1  && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 <div className="flex flex-col pl-8 pr-16 space-y-4 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({length: 4}).map((_, index) => {
@@ -289,7 +335,10 @@ const Questionnaire = (props) => {
                     </div>
                 </div>
                 {/* Question 6*/}
-                <h1>6. How many prompts do you expect to formulate or reformulate prompt to achieve your expected outcome?</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>6. How many prompts do you expect to formulate or reformulate prompt to achieve your expected outcome?  *</h1>
+                    {!promptsNum && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
                     <input 
                         className="w-full bg-transparent outline-none px-2 h-7" contentEditable={true}
@@ -297,7 +346,10 @@ const Questionnaire = (props) => {
                     </input>
                 </div>
                 {/* Question 7*/}
-                <h1>7. How much time do you expect it will take to achieve your expected outcome?</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>7. How much time do you expect it will take to achieve your expected outcome?  *</h1>
+                    {timeExpectationSelectedOption === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 <div className="flex flex-col pl-8 pr-16 space-y-4 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({length: 3}).map((_, index) => {
@@ -316,7 +368,10 @@ const Questionnaire = (props) => {
                         })}
                 </div>
                 {/* Question 8 */}
-                <h1>8. How do you expect the quality of ChatGPT’s output toward achieving your outcome?</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>8. How do you expect the quality of ChatGPT’s output toward achieving your outcome?  *</h1>
+                    {answerQualitySelectedOption === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 <div className="flex flex-col pl-8 pr-16 space-y-4 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({length: 5}).map((_, index) => {
@@ -337,7 +392,10 @@ const Questionnaire = (props) => {
                         })}
                 </div>
                 {/* Question 9 */}
-                <h1>9. How much time do you expect it will take to formulate prompts for a single information need (a simple task or one step of a complex task)?</h1>
+                <div className="flex flex-row items-center space-x-2">
+                    <h1>9. How much time do you expect it will take to formulate prompts for a single information need (a simple task or one step of a complex task)?  *</h1>
+                    {promptFormulateSelectedOption === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
+                </div>
                 <div className="flex flex-col pl-8 pr-16 space-y-4 justify-between">
                     {/* Array to generate the radio buttons */}
                     {Array.from({length: 5}).map((_, index) => {
@@ -367,6 +425,10 @@ const Questionnaire = (props) => {
                         }}>    
                     </input>
                 </div>
+                {/* Validation error message */}
+                {!isFormValid && (
+                    <p className="text-sm mt-2">Please answer all questions before submitting.</p>
+                )}
             </div>
             <div className="flex flex-row justify-around mt-8">
                 <button className="underline text-white"onClick={() => props.setShowQuestionnaire(false)}>Cancel</button>
