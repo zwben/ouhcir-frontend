@@ -136,7 +136,8 @@ const Questionnaire = (props) => {
             {
               "role": "user",
               "content": `provide a five-degree familiarity of the topic, each degree comes with a short sentence of 
-                        description and examples, for users to better understand which familiarity level represent. 
+                        description and an example, for users to better understand which familiarity level represent. 
+                        The example must be easy to understand for users at the corresponding familiarity level.
                         You output must be in the json format with the keys: degree, {description, and example}`
             }]
         console.log(messages)
@@ -152,7 +153,7 @@ const Questionnaire = (props) => {
             var i = 1
             for (const key in res) {
                 const item = res[key];
-                tempArray.push(`${i}. ${item.example}`);
+                tempArray.push(`${i}. ${item.description+'. Example: '+item.example}`);
                 i += 1
             }
         } catch(e){
@@ -168,15 +169,16 @@ const Questionnaire = (props) => {
               "role": "system",
               "content": `You are an teacher help the user learn the topic: ${taskTopic}.
                      The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
-                     stating "${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}".
+                     stating "${topicFamiliaritySpecificSelectedOption[topicFamiliaritySpecificSelectedOption]}".
                       Given this familiarity level, adjust your answers so that the user can understand better.`
             },
             {
               "role": "user",
               "content": `The user's task goal is ${taskTypeCheckboxes}. Provide a five-degree complexity 
-                        of users' task goal, each degree comes with a short sentence of description and examples, 
-                        for users to better understand which complexity level represent. You output must be in the 
-                        json format with the keys: degree {description, and example}`
+                        of users' task goal, each degree comes with a short sentence of description and an example, 
+                        for users to better understand which complexity level represent. 
+                            The example must be easy to understand for users at the corresponding complexity level.
+                            You output must be in the json format with the keys: degree {description, and example}`
             }]
         const response = await openai.createChatCompletion({
             model:"gpt-3.5-turbo",
@@ -187,7 +189,7 @@ const Questionnaire = (props) => {
         const tempArray = [];
         for (const key in res) {
             const item = res[key];
-            tempArray.push(`${key}. ${item.example}`);
+            tempArray.push(`${key}. ${item.description + '. Example: ' + item.example}`);
         }
         setExpectedComplexitySpecificOptions(tempArray);
         setIsLoading(false);
@@ -341,7 +343,9 @@ const Questionnaire = (props) => {
                 </div>
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
                     <input 
-                        className="w-full bg-transparent outline-none px-2 h-7" contentEditable={true}
+                        className="w-full bg-transparent outline-none px-2 h-7" 
+                        type="number"
+                        contentEditable={true}
                         onChange={(e)=>{setPromptsNum(e.target.value)}}>
                     </input>
                 </div>
@@ -416,7 +420,7 @@ const Questionnaire = (props) => {
                         })}
                 </div>
                 {/* Question 10 */}
-                <h1>10. What other cost or effort do you expect during the task?</h1>
+                <h1>10. What other cost or effort do you expect during the task? (None if no other expectations) *</h1>
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
                     <input 
                         className="w-full bg-transparent outline-none px-2 h-7"
