@@ -78,7 +78,7 @@ const Questionnaire = (props) => {
                         'userID': authCtx.user.uid,
                         taskTopic,
                         topicFamiliaritySpecificOptions,
-                        'topicFamiliaritySpecific': topicFamiliaritySpecificSelectedOption + 1,
+                        topicFamiliaritySpecificSelectedOption,
                         'taskType': taskTypeCheckboxes,
                         expectedComplexitySpecificOptions,
                         expectedComplexitySpecificSelectedOption,
@@ -153,7 +153,7 @@ const Questionnaire = (props) => {
             var i = 1
             for (const key in res) {
                 const item = res[key];
-                tempArray.push(`${i}. ${item.description+'. Example: '+item.example}`);
+                tempArray.push(`${i}. ${item.description+'• Example: '+item.example}`);
                 i += 1
             }
         } catch(e){
@@ -169,7 +169,7 @@ const Questionnaire = (props) => {
               "role": "system",
               "content": `You are an teacher help the user learn the topic: ${taskTopic}.
                      The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
-                     stating "${topicFamiliaritySpecificSelectedOption[topicFamiliaritySpecificSelectedOption]}".
+                     stating "${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".
                       Given this familiarity level, adjust your answers so that the user can understand better.`
             },
             {
@@ -189,7 +189,7 @@ const Questionnaire = (props) => {
         const tempArray = [];
         for (const key in res) {
             const item = res[key];
-            tempArray.push(`${key}. ${item.description + '. Example: ' + item.example}`);
+            tempArray.push(`${key}. ${item.description + '• Example: ' + item.example}`);
         }
         setExpectedComplexitySpecificOptions(tempArray);
         setIsLoading(false);

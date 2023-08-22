@@ -76,12 +76,28 @@ const PostTaskQuestionnaire = (props) => {
 
     // Handle checkbox change
     const handleEncounteredProblemsChange = (problem) => {
-            if (encounteredProblems.includes(problem)) {
-                setEncounteredProblems(encounteredProblems.filter((p) => p !== problem));
+        if (problem === 'No challenges') {
+            // If "No challenges" is being checked, clear all other problems.
+            if (!encounteredProblems.includes(problem)) {
+                setEncounteredProblems(['No challenges']);
             } else {
-                setEncounteredProblems([...encounteredProblems, problem]);
+                // If "No challenges" is being unchecked, just remove it.
+                setEncounteredProblems(encounteredProblems.filter((p) => p !== problem));
             }
+        } else {
+            // If any other problem is being checked, remove "No challenges" from the list if it exists.
+            if (encounteredProblems.includes('No challenges')) {
+                setEncounteredProblems([...encounteredProblems.filter((p) => p !== 'No challenges'), problem]);
+            } else {
+                if (encounteredProblems.includes(problem)) {
+                    setEncounteredProblems(encounteredProblems.filter((p) => p !== problem));
+                } else {
+                    setEncounteredProblems([...encounteredProblems, problem]);
+                }
+            }
+        }
     };
+
 
     const handleSubmit = async () => {
         setSubmitClicked(true)
@@ -242,7 +258,7 @@ const PostTaskQuestionnaire = (props) => {
                 </div>
                 <div className="flex flex-row items-center space-x-2">
                     <h1>5. Encountered problems</h1>
-                    {encounteredProblems.length <= 1 && submitClicked && <p className="text-red-500 text-sm">required. Select at least 2</p>}
+                    {encounteredProblems.length < 1 && submitClicked && <p className="text-red-500 text-sm">required. Select at least 1</p>}
                 </div>
                 {/* Question 5 */}
                 <div className="flex flex-col pl-8 pr-16 space-y-3">
