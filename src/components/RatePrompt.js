@@ -24,7 +24,7 @@ const RatePrompt = (props) => {
                 const docRef = await addDoc(collection(db, "promptRatings"), formData);
                 console.log("Document written with ID:", docRef.id);
                 // Query for the chat document matching the promptID
-                const chatsCollection = collection(db, "chatsInduvidual"); 
+                const chatsCollection = collection(db, "chatsIndividual"); 
                 const q = query(chatsCollection, where("id", "==", props.promptID));
 
                 const querySnapshot = await getDocs(q);

@@ -36,7 +36,7 @@ const MsgEntry = (props) => {
         if (newMessage.trim() != ''){
             // Save the prompt to Firestore database
             try {
-                const promptRef = collection(db, 'chatsInduvidual');
+                const promptRef = collection(db, 'chatsIndividual');
                 const promptID = uid()
                 props.setPromptID(promptID)
                 const docRef = await addDoc(promptRef, {

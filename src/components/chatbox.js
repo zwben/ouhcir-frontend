@@ -128,7 +128,7 @@ function ChatBox (){
         const fetchChatHistory = async () => {
             if (taskCtx.taskID){
                 try {
-                    const chatsRef = collection(db, 'chatsInduvidual');
+                    const chatsRef = collection(db, 'chatsIndividual');
             
                     // Add a where clause to filter by taskID
                     const q = query(
@@ -183,7 +183,7 @@ function ChatBox (){
 
     const saveResponseToFirestore = async (message, promptID, tempResponseID, typingStartTime, typingEndTime) => {
         try {
-            const promptRef = collection(db, 'chatsInduvidual');
+            const promptRef = collection(db, 'chatsIndividual');
             await addDoc(promptRef, {
                 id: tempResponseID,
                 ratingID: null,

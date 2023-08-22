@@ -23,7 +23,7 @@ const Navbar = (props) => {
     const canEndTask = async () => {
         // get the chat history
         try {
-            const chatsRef = collection(db, 'chatsInduvidual');
+            const chatsRef = collection(db, 'chatsIndividual');
     
             // Add a where clause to filter by taskID
             const q = query(
