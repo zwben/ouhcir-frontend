@@ -14,6 +14,7 @@ import { db } from '../firebase-config';
 import { uid } from 'uid';
 import FavouritesContext from '../context/favorites-context';
 import QueContext from '../context/que-context';
+import ReactMarkdown from 'react-markdown';
 
 function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
@@ -92,7 +93,7 @@ function ChatBox (){
                 const messages = [
                         {
                             "role": "system",
-                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".  The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better.`
+                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".  The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better. You must provide your response in a markdown format.`
                         },
                         {
                             "role": "user",
@@ -268,7 +269,8 @@ function ChatBox (){
                         setShowCommentPopup={setShowCommentPopup}
                         showMoreActionsPopUp={showMoreActionsPopUp}
                         setShowMoreActionsPopUp={setShowMoreActionsPopUp}
-                        text={message.content}
+                        // text={message.content}
+                        text={<ReactMarkdown>{message.content}</ReactMarkdown>}
                         bgColor={bgObj.ai}
                         profile_image={ai_profile}
                         isStarred={isStarred}
