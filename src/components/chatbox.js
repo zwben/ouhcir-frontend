@@ -17,6 +17,7 @@ import QueContext from '../context/que-context';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import hljs from 'highlight.js';
 
 function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
@@ -238,11 +239,29 @@ function ChatBox (){
     }
 
 
-    const renderers = {
-        code: ({ language, value }) => {
-            return <code>{value}</code>;
+    // const renderers = {
+    //     code: ({ language, value }) => {
+    //         return <code>{value}</code>;
+    //     }
+    // };
+
+    const components = {
+        code({ node, inline, className, children, ...props }) {
+            const match = /language-(\w+)/.exec(className || '');
+            const language = match && match[1] ? match[1] : "";
+            
+            const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
+            const highlighted = hljs.highlight(validLanguage, children[0]).value;
+
+            if (inline) {
+                return <code className={className} {...props} dangerouslySetInnerHTML={{ __html: highlighted }} />;
+            }
+            return <pre className={className} {...props}><code dangerouslySetInnerHTML={{ __html: highlighted }} /></pre>;
         }
     };
+
+
+
 
     // Create an array of message components
     const messageComponents = promptResponseArray.map((message, index) => {
@@ -279,7 +298,7 @@ function ChatBox (){
                         showMoreActionsPopUp={showMoreActionsPopUp}
                         setShowMoreActionsPopUp={setShowMoreActionsPopUp}
                         // text={message.content}
-                        text={<ReactMarkdown renderers={renderers} children={message.content} />}
+                        text=<ReactMarkdown components={components} children={message.content} />
                         bgColor={bgObj.ai}
                         profile_image={ai_profile}
                         isStarred={isStarred}
