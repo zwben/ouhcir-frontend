@@ -15,6 +15,8 @@ import { uid } from 'uid';
 import FavouritesContext from '../context/favorites-context';
 import QueContext from '../context/que-context';
 import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
@@ -93,7 +95,7 @@ function ChatBox (){
                 const messages = [
                         {
                             "role": "system",
-                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".  The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better. You must provide your response in a markdown format.`
+                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".  The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better.`
                         },
                         {
                             "role": "user",
@@ -234,7 +236,14 @@ function ChatBox (){
             )
         })
     }
-        
+
+
+    const renderers = {
+        code: ({ language, value }) => {
+            return <code>{value}</code>;
+        }
+    };
+
     // Create an array of message components
     const messageComponents = promptResponseArray.map((message, index) => {
         var isStarred = false
@@ -270,7 +279,7 @@ function ChatBox (){
                         showMoreActionsPopUp={showMoreActionsPopUp}
                         setShowMoreActionsPopUp={setShowMoreActionsPopUp}
                         // text={message.content}
-                        text={<ReactMarkdown>{message.content}</ReactMarkdown>}
+                        text={<ReactMarkdown renderers={renderers} children={message.content} />}
                         bgColor={bgObj.ai}
                         profile_image={ai_profile}
                         isStarred={isStarred}

@@ -9,3 +9,16 @@ html, body {
     background-color: #2f4454;
   }
   
+pre code {
+    background-color: #000000;
+    padding: 5px;
+    border: 1px solid #ddd;
+    display: block;
+    white-space: pre-wrap;
+}
+
+code {
+    background-color: #171717;
+    border: 1px solid #ddd;
+    padding: 0px 5px 0px 5px;
+}
