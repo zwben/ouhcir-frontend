@@ -15,8 +15,6 @@ import { uid } from 'uid';
 import FavouritesContext from '../context/favorites-context';
 import QueContext from '../context/que-context';
 import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import hljs from 'highlight.js';
 
 function ChatBox (){
@@ -245,7 +243,7 @@ function ChatBox (){
     //     }
     // };
 
-    const components = {
+    const renderers = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
             const language = match && match[1] ? match[1] : "";
@@ -298,7 +296,7 @@ function ChatBox (){
                         showMoreActionsPopUp={showMoreActionsPopUp}
                         setShowMoreActionsPopUp={setShowMoreActionsPopUp}
                         // text={message.content}
-                        text=<ReactMarkdown components={components} children={message.content} />
+                        text=<ReactMarkdown components={renderers} children={message.content} />
                         bgColor={bgObj.ai}
                         profile_image={ai_profile}
                         isStarred={isStarred}
