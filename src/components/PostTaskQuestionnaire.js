@@ -1,6 +1,8 @@
 import { useContext, useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
-import { auth, db } from "../firebase-config";
+// import { auth, db } from "../firebase-config";
+import { db } from "../firebase-config";
+
 import TaskContext from "../context/task-context";
 import AuthContext from "../context/auth-context";
 

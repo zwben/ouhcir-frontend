@@ -1,8 +1,11 @@
 import { useState, useRef } from "react";
-import { collection, addDoc, query, where, getDocs} from "firebase/firestore";
+// import { collection, addDoc, query, where, getDocs} from "firebase/firestore";
+import { collection, addDoc} from "firebase/firestore";
 import { db } from "../firebase-config";
 import { uid } from "uid";
-import { useContext, useEffect } from "react";
+// import { useContext, useEffect } from "react";
+import { useContext } from "react";
+
 import TaskContext from "../context/task-context";
 
 const CommentPopUp = (props) => {

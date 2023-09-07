@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { collection, addDoc, query, where, getDocs, updateDoc, orderBy, startAt, endAt, limit } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, updateDoc, orderBy, endAt, limit } from "firebase/firestore";
 import { db } from "../firebase-config";
 import QueContext from '../context/que-context';
 import TaskContext from '../context/task-context';

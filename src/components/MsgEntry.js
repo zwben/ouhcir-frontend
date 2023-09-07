@@ -9,7 +9,7 @@ import { uid } from 'uid';
 
 const MsgEntry = (props) => {
      
-    const [prompt, setPrompt] = useState(null);
+    // const [prompt, setPrompt] = useState(null);
     const [typingStartTime, setTypingStartTime] = useState(null); // Timestamp for when user starts typing
 
     const textRef = useRef();  
@@ -33,23 +33,23 @@ const MsgEntry = (props) => {
     const sendPrompt = async (e) => {
         const newMessage = textRef.current.value
         props.setMsgEntryText('')
-        if (newMessage.trim() != ''){
+        if (newMessage.trim() !== ''){
             // Save the prompt to Firestore database
             try {
                 const promptRef = collection(db, 'chatsIndividual');
                 const promptID = uid()
                 props.setPromptID(promptID)
-                const docRef = await addDoc(promptRef, {
-                        id: promptID,
-                        ratingID: null,
-                        taskID: taskCtx?.taskID || '',
-                        responseTo: props.responseID,
-                        prompt: newMessage,
-                        userID: authCtx?.user.uid || '', 
-                        role: 'user',
-                        typingStartTime,
-                        typingEndTime: new Date(),
-                    });
+                // const docRef = await addDoc(promptRef, {
+                //         id: promptID,
+                //         ratingID: null,
+                //         taskID: taskCtx?.taskID || '',
+                //         responseTo: props.responseID,
+                //         prompt: newMessage,
+                //         userID: authCtx?.user.uid || '', 
+                //         role: 'user',
+                //         typingStartTime,
+                //         typingEndTime: new Date(),
+                //     });
                 props.setPrompt(newMessage)
                 const updatedMessagesArray = [...props.promptResponseArray, {role: "user", content: newMessage, id: promptID}];
                 // get the response from API
@@ -82,14 +82,14 @@ const MsgEntry = (props) => {
                     <button
                         title='Microphone recording'
                     >
-                        <img src={microphone_icon}/>
+                        <img src={microphone_icon} alt=""/>
                     </button>
             </div>
             <button 
                 onClick={sendPrompt}
                 title='Send prompt'
             >
-                <img src={send_message_icon}/>
+                <img src={send_message_icon} alt=""/>
             </button>
 
         </div>

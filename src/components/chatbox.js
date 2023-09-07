@@ -1,12 +1,14 @@
 import {useState, useContext} from 'react';
-import { useRef, useEffect } from 'react';
+// import { useRef, useEffect } from 'react';
+import { useEffect } from 'react';
+
 import MsgEntry from './MsgEntry'
 import Prompt from './prompt';
 
 import { openai } from '../openai-config';
 import user_profile from '../assets/chatbox/user_profile.svg'
 import ai_profile from '../assets/chatbox/ai_profile.svg'
-import CommentPopUp from './CommentPopUp';
+// import CommentPopUp from './CommentPopUp';
 import { collection, query, orderBy, getDocs, where, addDoc } from 'firebase/firestore';
 import TaskContext from '../context/task-context';
 import AuthContext from '../context/auth-context';
@@ -123,7 +125,7 @@ function ChatBox (){
     // to handle automatic scrolling to the end
     useEffect(() => {
         window.scrollTo(0, document.documentElement.scrollHeight);
-    }, [promptResponseArray]);
+    }, [promptResponseArray, getPromptSuggestions, queCtx.formData]);
     
     // To get the chat history
     useEffect(() => {
@@ -264,7 +266,7 @@ function ChatBox (){
     // Create an array of message components
     const messageComponents = promptResponseArray.map((message, index) => {
         var isStarred = false
-        if (favCtx.favourites && favCtx.favourites.find(e => e.promptID == message.id)){
+        if (favCtx.favourites && favCtx.favourites.find(e => e.promptID === message.id)){
             isStarred =true
         }
         return (

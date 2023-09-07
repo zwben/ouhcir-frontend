@@ -27,4 +27,4 @@ export const storage = getStorage(app);
 export const auth = getAuth(app);
 
 // Enable Firebase Analytics
-const analytics = getAnalytics(app);
+// const analytics = getAnalytics(app);
