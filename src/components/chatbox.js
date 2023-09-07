@@ -1,4 +1,4 @@
-import {useState, useContext} from 'react';
+import {useState, useContext, useCallback } from 'react';
 // import { useRef, useEffect } from 'react';
 import { useEffect } from 'react';
 
@@ -23,8 +23,11 @@ function ChatBox (){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
     const [showMoreActionsPopUp, setShowMoreActionsPopUp] = useState(false)
     const [isPromptRated, setIsPromptRated] = useState(null) // to force a rerender of useEffect to see if a prompt has been rated
+    // eslint-disable-next-line no-unused-vars
     const [prompt, setPrompt] = useState('')
+    // eslint-disable-next-line no-unused-vars
     const [response, setResponse] = useState('')
+    // eslint-disable-next-line no-unused-vars
     const [promptID, setPromptID] = useState('')
     const [responseID, setResponseID] = useState('')
     const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +45,8 @@ function ChatBox (){
     const bgObj = {"user": "bg-[#3c586e]",
                     "ai": "bg-[#2f4454]"}
     
-    const getPromptSuggestions = async (promptResponseArray) => {
+    const getPromptSuggestions = useCallback(() => {
+        const fetchSuggestions = async () => {
         if (response !== '' || promptResponseArray.length >=2 ){
             try{
                 const arrLength = promptResponseArray.length
@@ -77,7 +81,9 @@ function ChatBox (){
                     console.log(e)
                 }
         }
-    }
+    };
+        fetchSuggestions();
+    }, [promptResponseArray]);
     // to get prompt suggestions and question suggestions
     useEffect(() => {
         const getQuestionSuggestions = async (formData) => {
