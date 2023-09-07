@@ -83,7 +83,7 @@ function ChatBox (){
         }
     };
         fetchSuggestions();
-    }, [promptResponseArray]);
+    }, [queCtx.formData, response, promptResponseArray]);
     // to get prompt suggestions and question suggestions
     useEffect(() => {
         const getQuestionSuggestions = async (formData) => {
@@ -126,7 +126,7 @@ function ChatBox (){
             getQuestionSuggestions(queCtx.formData);
             getPromptSuggestions(promptResponseArray)
         }
-    }, [queCtx.formData?.taskTopic]);                      
+    }, [getPromptSuggestions, promptResponseArray, queCtx.formData, queCtx.formData?.taskTopic]);                      
 
     // to handle automatic scrolling to the end
     useEffect(() => {
