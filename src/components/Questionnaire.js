@@ -21,7 +21,7 @@ const Questionnaire = (props) => {
     const [taskTypeCheckboxes, setTaskTypeCheckboxes] = useState([]);   // list to containt checkbox values
     // For GPT generated options
     const [topicFamiliaritySpecificOptions, setTopicFamiliaritySpecificOptions] = useState([])
-    const [topicFamiliaritySpecificSelectedOption, seTopicFamiliaritySpecificSelectedOption] = useState(-1)
+    const [topicFamiliaritySpecificSelectedOption, setTopicFamiliaritySpecificSelectedOption] = useState(-1)
     const [expectedComplexitySpecificOptions, setExpectedComplexitySpecificOptions] = useState([])
     const [expectedComplexitySpecificSelectedOption, setExpectedComplexitySpecificSelectedOption] = useState(-1)
     const [isLoading, setIsLoading] = useState(false);
@@ -131,7 +131,7 @@ const Questionnaire = (props) => {
         const messages=[
             {
               "role": "system",
-              "content": `You are an teacher help the user learn the topic: ${taskTopic}`
+              "content": `You are an assistant to help the user learn the topic: ${taskTopic}`
             },
             {
               "role": "user",
@@ -167,19 +167,21 @@ const Questionnaire = (props) => {
         const messages=[
             {
               "role": "system",
-              "content": `You are an teacher help the user learn the topic: ${taskTopic}.
+              "content": `You are an assistant to help the user learn the topic: ${taskTopic}.
                      The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
-                     stating "${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".
-                      Given this familiarity level, adjust your answers so that the user can understand better.`
+                     stating "${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". 
+                     The user's task goal is ${taskTypeCheckboxes} about ${taskTopic}. 
+                      Given this task topic, task goal, and familiarity level, adjust your answers so that the user can understand better.`
             },
             {
               "role": "user",
-              "content": `The user's task goal is ${taskTypeCheckboxes}. Provide a five-degree complexity 
+              "content": `Provide a five-degree complexity 
                         of users' task goal, each degree comes with a short sentence of description and an example, 
                         for users to better understand which complexity level represent. 
                             The example must be easy to understand for users at the corresponding complexity level.
                             You output must be in the json format with the keys: degree {description, and example}`
             }]
+        console.log(messages)
         const response = await openai.createChatCompletion({
             model:"gpt-3.5-turbo",
             messages:messages, 
@@ -238,7 +240,7 @@ const Questionnaire = (props) => {
                                         <button
                                             value={option}
                                             className={`w-4 h-4 rounded-full border-[1px] border-white ${topicFamiliaritySpecificSelectedOption === index ? "bg-white" : ""}`}
-                                            onClick={() => seTopicFamiliaritySpecificSelectedOption(index)}
+                                            onClick={() => setTopicFamiliaritySpecificSelectedOption(index)}
                                         ></button>
                                     </div>
                                     <label className="ml-2 text-white">

@@ -12,7 +12,7 @@ const MoreActionsPopUp = (props) => {
                     >
                     Rate the response
                 </button>
-                <button 
+                {/* <button 
                     className="bg-white px-6 py-2 rounded-2xl"
                     >
                     Explain the prompt (short)
@@ -21,7 +21,7 @@ const MoreActionsPopUp = (props) => {
                     className="bg-white px-6 py-2 rounded-2xl"
                     >
                     Explain the prompt (detailed)
-                </button>
+                </button> */}
             </div>
             <div className="flex flex-row justify-around mt-8">
                 <button 
