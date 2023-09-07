@@ -276,6 +276,7 @@ function ChatBox (){
                         promptID = {message.id}
                         setIsPromptRated={setIsPromptRated}
                         text={message.content}
+                        stringText={message.content}
                         showCommentPopup={showCommentPopup}
                         setShowCommentPopup={setShowCommentPopup}
                         showMoreActionsPopUp={showMoreActionsPopUp}
@@ -295,7 +296,7 @@ function ChatBox (){
                         setShowCommentPopup={setShowCommentPopup}
                         showMoreActionsPopUp={showMoreActionsPopUp}
                         setShowMoreActionsPopUp={setShowMoreActionsPopUp}
-                        // text={message.content}
+                        stringText={message.content}
                         text=<ReactMarkdown components={renderers} children={message.content} />
                         bgColor={bgObj.ai}
                         profile_image={ai_profile}
