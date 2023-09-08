@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
+// eslint-disable-next-line no-unused-vars
 import { auth, db } from "../firebase-config";
 import TaskContext from "../context/task-context";
 import AuthContext from "../context/auth-context";

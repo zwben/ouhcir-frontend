@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from './auth-context';
+// eslint-disable-next-line no-unused-vars
 import { auth, db } from '../firebase-config';
 import { addDoc, updateDoc, getDocs, collection, query, where} from 'firebase/firestore';
 import TaskContext from './task-context';
@@ -12,6 +13,7 @@ const FavouritesContext = React.createContext({
 
 export const FavouritesContextProvider = (props) => {
     const [favourites, setFavourites] = useState([]);
+    // eslint-disable-next-line no-unused-vars
     const authCtx = useContext(AuthContext)
     const taskCtx = useContext(TaskContext)
 

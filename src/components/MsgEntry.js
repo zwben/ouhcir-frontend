@@ -8,7 +8,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import { uid } from 'uid';
 
 const MsgEntry = (props) => {
-     
+    // eslint-disable-next-line no-unused-vars 
     const [prompt, setPrompt] = useState(null);
     const [typingStartTime, setTypingStartTime] = useState(null); // Timestamp for when user starts typing
 
@@ -33,12 +33,13 @@ const MsgEntry = (props) => {
     const sendPrompt = async (e) => {
         const newMessage = textRef.current.value
         props.setMsgEntryText('')
-        if (newMessage.trim() != ''){
+        if (newMessage.trim() !== ''){
             // Save the prompt to Firestore database
             try {
                 const promptRef = collection(db, 'chatsIndividual');
                 const promptID = uid()
                 props.setPromptID(promptID)
+                // eslint-disable-next-line no-unused-vars
                 const docRef = await addDoc(promptRef, {
                         id: promptID,
                         ratingID: null,
@@ -82,14 +83,14 @@ const MsgEntry = (props) => {
                     <button
                         title='Microphone recording'
                     >
-                        <img src={microphone_icon}/>
+                        <img src={microphone_icon} alt=""/>
                     </button>
             </div>
             <button 
                 onClick={sendPrompt}
                 title='Send prompt'
             >
-                <img src={send_message_icon}/>
+                <img src={send_message_icon} alt=""/>
             </button>
 
         </div>

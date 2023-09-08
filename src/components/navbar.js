@@ -3,6 +3,7 @@ import star_filled from "../assets/navbar/star_filled.svg"
 import tick_icon from "../assets/navbar/tick_icon.svg"
 
 import { useState, useRef, useContext } from "react";
+// eslint-disable-next-line no-unused-vars
 import { collection, query, orderBy, getDocs, where, addDoc } from 'firebase/firestore';
 import { db } from "../firebase-config";
 import TaskContext from "../context/task-context";
@@ -41,7 +42,7 @@ const Navbar = (props) => {
             });
             for (const chatObj of chatHistory){
                 console.log(chatObj)
-                if (chatObj.role == 'assistant' && chatObj.ratingID === null ){
+                if (chatObj.role === 'assistant' && chatObj.ratingID === null ){
                     console.log('here')
                     return false
                 }
@@ -93,10 +94,10 @@ const Navbar = (props) => {
                         <label className="w-[12rem] outline-none" contentEditable={isTaskNameEditable} ref={taskNameLabelRef}>{taskName}</label>
                         {isTaskNameEditable && 
                             <button onClick={changeTaskName}>
-                            <img src={tick_icon}/>
+                            <img src={tick_icon} alt=""/>
                             </button>}
                         {!isTaskNameEditable && <button onClick={()=> setIsTaskNameEditable(true)}>
-                            <img src={edit_icon}/>
+                            <img src={edit_icon} alt=""/>
                         </button>}
                     </div>}
                     <div className="mt-3">
@@ -106,7 +107,7 @@ const Navbar = (props) => {
                         </button>
                     </div>
                     <div className="flex space-x-3 w-fit mt-16">
-                        <img src={star_filled}/>
+                        <img src={star_filled} alt=""/>
                         <label className="">Favourites</label>
                     </div>
                     <div className="flex flex-col w-fit mr-8 space-y-2 mt-3 ml-7">

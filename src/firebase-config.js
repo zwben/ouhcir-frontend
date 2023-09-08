@@ -27,4 +27,5 @@ export const storage = getStorage(app);
 export const auth = getAuth(app);
 
 // Enable Firebase Analytics
+// eslint-disable-next-line no-unused-vars
 const analytics = getAnalytics(app);

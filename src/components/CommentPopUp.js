@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
+// eslint-disable-next-line no-unused-vars
 import { collection, addDoc, query, where, getDocs} from "firebase/firestore";
 import { db } from "../firebase-config";
 import { uid } from "uid";
+// eslint-disable-next-line no-unused-vars
 import { useContext, useEffect } from "react";
 import TaskContext from "../context/task-context";
 
