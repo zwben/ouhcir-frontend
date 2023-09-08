@@ -2,7 +2,7 @@ import { initializeApp} from "firebase/app";
 import {getFirestore} from '@firebase/firestore';
 import {getStorage} from 'firebase/storage';
 import { getAuth } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
+// import { getAnalytics } from "firebase/analytics";
 
 
 
@@ -27,5 +27,4 @@ export const storage = getStorage(app);
 export const auth = getAuth(app);
 
 // Enable Firebase Analytics
-// eslint-disable-next-line no-unused-vars
-const analytics = getAnalytics(app);
+// const analytics = getAnalytics(app);
