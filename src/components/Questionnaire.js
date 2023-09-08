@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext} from "react";
 import { collection, addDoc } from 'firebase/firestore';
 import AuthContext from "../context/auth-context";
 import TaskContext from "../context/task-context";
@@ -141,15 +141,15 @@ const Questionnaire = (props) => {
                         You output must be in the json format with the keys: degree, {description, and example}`
             }]
         console.log(messages)
-        const response = await openai.chat.completions.create({
+        const response = await openai.createChatCompletion({
             model:"gpt-3.5-turbo",
             messages:messages, 
             max_tokens: 512,
         })
-        console.log(response.choices[0].message.content)
+        console.log(response.data.choices[0].message.content)
         const tempArray = [];
         try{
-            const res = JSON.parse(response.choices[0].message.content);
+            const res = JSON.parse(response.data.choices[0].message.content);
             var i = 1
             for (const key in res) {
                 const item = res[key];
@@ -182,12 +182,12 @@ const Questionnaire = (props) => {
                             You output must be in the json format with the keys: degree {description, and example}`
             }]
         console.log(messages)
-        const response = await openai.chat.completions.create({
+        const response = await openai.createChatCompletion({
             model:"gpt-3.5-turbo",
             messages:messages, 
             max_tokens: 512,
         })
-        const res = JSON.parse(response.choices[0].message.content);
+        const res = JSON.parse(response.data.choices[0].message.content);
         const tempArray = [];
         for (const key in res) {
             const item = res[key];
