@@ -44,7 +44,7 @@ function ChatBox (){
 
     const bgObj = {"user": "bg-[#3c586e]",
                     "ai": "bg-[#2f4454]"}
-    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const getPromptSuggestions = async (promptResponseArray) => {
         if (response !== '' || promptResponseArray.length >=2 ){
             try{
@@ -123,7 +123,7 @@ function ChatBox (){
             getQuestionSuggestions(queCtx.formData);
             getPromptSuggestions(promptResponseArray)
         }
-    }, [queCtx.formData?.taskTopic]);                      
+    }, [getPromptSuggestions, promptResponseArray, queCtx.formData, queCtx.formData?.taskTopic]);                      
 
     // to handle automatic scrolling to the end
     useEffect(() => {
