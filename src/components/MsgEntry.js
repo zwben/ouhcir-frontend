@@ -1,10 +1,10 @@
-import {useState, useRef} from 'react';
+import {useState, useRef, useContext} from 'react';
 import send_message_icon from "../assets/msg_entry/send_message_icon.svg"
 import microphone_icon from "../assets/msg_entry/microphone_icon.svg"
-// import TaskContext from '../context/task-context';
-// import AuthContext from '../context/auth-context';
-// import { db } from '../firebase-config';
-// import { collection } from 'firebase/firestore';
+import TaskContext from '../context/task-context';
+import AuthContext from '../context/auth-context';
+import { db } from '../firebase-config';
+import { addDoc, collection } from 'firebase/firestore';
 import { uid } from 'uid';
 
 const MsgEntry = (props) => {
@@ -13,8 +13,8 @@ const MsgEntry = (props) => {
     const [typingStartTime, setTypingStartTime] = useState(null); // Timestamp for when user starts typing
 
     const textRef = useRef();  
-    // const taskCtx = useContext(TaskContext)
-    // const authCtx = useContext(AuthContext)
+    const taskCtx = useContext(TaskContext)
+    const authCtx = useContext(AuthContext)
 
     const handleTextareaChange = () => {
         if (textRef.current) {
@@ -36,7 +36,7 @@ const MsgEntry = (props) => {
         if (newMessage.trim() !== ''){
             // Save the prompt to Firestore database
             try {
-                // const promptRef = collection(db, 'chatsIndividual');
+                const promptRef = collection(db, 'chatsIndividual');
                 const promptID = uid()
                 props.setPromptID(promptID)
                 // const docRef = await addDoc(promptRef, {
