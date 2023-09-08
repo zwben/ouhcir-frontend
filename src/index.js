@@ -7,7 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import  {AuthContextProvider}  from './context/auth-context';
 import { TaskContextProvider } from './context/task-context';
-import { FavouritesContextProvider } from './context/favorites-context';
+import FavouritesContext, { FavouritesContextProvider } from './context/favorites-context';
 import { QueContextProvider } from './context/que-context';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-// import AuthContext from './auth-context';
-import { db } from '../firebase-config';
+import AuthContext from './auth-context';
+import { auth, db } from '../firebase-config';
 import { addDoc, updateDoc, getDocs, collection, query, where} from 'firebase/firestore';
 import TaskContext from './task-context';
 
@@ -12,7 +12,7 @@ const FavouritesContext = React.createContext({
 
 export const FavouritesContextProvider = (props) => {
     const [favourites, setFavourites] = useState([]);
-    // const authCtx = useContext(AuthContext)
+    const authCtx = useContext(AuthContext)
     const taskCtx = useContext(TaskContext)
 
     // Get all the favourites
