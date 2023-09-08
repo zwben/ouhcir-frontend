@@ -123,7 +123,8 @@ function ChatBox (){
             getQuestionSuggestions(queCtx.formData);
             getPromptSuggestions(promptResponseArray)
         }
-    }, [getPromptSuggestions, promptResponseArray, queCtx.formData, queCtx.formData?.taskTopic]);                      
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [promptResponseArray, queCtx.formData]);                      
 
     // to handle automatic scrolling to the end
     useEffect(() => {
