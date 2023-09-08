@@ -1,6 +1,6 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 // eslint-disable-next-line no-unused-vars
-import { collection, addDoc, query, where, getDocs, updateDoc, orderBy, startAt, endAt, limit } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, updateDoc, orderBy, endAt, limit } from "firebase/firestore";
 import { db } from "../firebase-config";
 import QueContext from '../context/que-context';
 import TaskContext from '../context/task-context';
@@ -80,12 +80,12 @@ const RatePrompt = (props) => {
           "content": `${explainMessage}. You output must be in the json format with the keynum as keys and explanations as values.}`
         }]
     // console.log(messages)
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
         model:"gpt-3.5-turbo",
         messages:messages, 
         max_tokens: 512,
     })
-    const res = JSON.parse(response.data.choices[0].message.content);
+    const res = JSON.parse(response.choices[0].message.content);
     const tempArray = [];
     for (const key in res) {
         const item = res[key];

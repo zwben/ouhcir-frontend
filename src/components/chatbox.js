@@ -1,14 +1,11 @@
-import {useState, useContext} from 'react';
+import { useState, useContext } from 'react';
 // eslint-disable-next-line no-unused-vars
-import { useRef, useEffect } from 'react';
-import MsgEntry from './MsgEntry'
-import Prompt from './prompt';
+import { useEffect } from 'react';
 
 import { openai } from '../openai-config';
-import user_profile from '../assets/chatbox/user_profile.svg'
-import ai_profile from '../assets/chatbox/ai_profile.svg'
+import user_profile from '../assets/chatbox/user_profile.svg';
+import ai_profile from '../assets/chatbox/ai_profile.svg';
 // eslint-disable-next-line no-unused-vars
-import CommentPopUp from './CommentPopUp';
 import { collection, query, orderBy, getDocs, where, addDoc } from 'firebase/firestore';
 import TaskContext from '../context/task-context';
 import AuthContext from '../context/auth-context';
@@ -68,13 +65,13 @@ function ChatBox (){
                     "content": "Please generate five follow up questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions"
                     
                 })
-                const response = await openai.createChatCompletion({
+                const response = await openai.chat.completions.create({
                     model: "gpt-3.5-turbo",
                     messages: messages,
                     max_tokens: 256,
                 });
             
-                const res = JSON.parse(response.data.choices[0].message.content);
+                const res = JSON.parse(response.choices[0].message.content);
                 setPromptSuggestions(res)
                 } catch(e){
                     console.log(e)
@@ -107,13 +104,13 @@ function ChatBox (){
                         },
                     ];
             
-                const response = await openai.createChatCompletion({
+                const response = await openai.chat.completions.create({
                     model: "gpt-3.5-turbo",
                     messages: messages,
                     max_tokens: 256,
                 });
             
-                const res = JSON.parse(response.data.choices[0].message.content);
+                const res = JSON.parse(response.choices[0].message.content);
                 setQuestionsSuggestions(res)
                 } catch(e){
                     console.log(e)
@@ -170,11 +167,11 @@ function ChatBox (){
                 return { role, content };
             });
             const typingStartTime = new Date()
-            const completion = await openai.createChatCompletion({
+            const completion = await openai.chat.completions.create({
                     model: "gpt-3.5-turbo",
                     messages: filteredMessages,
                 });
-            const message = completion.data.choices[0].message
+            const message = completion.choices[0].message
             const typingEndTime = new Date()
             const tempResponseID = uid()
             setResponseID(tempResponseID)
