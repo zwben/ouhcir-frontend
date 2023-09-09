@@ -6,12 +6,12 @@ import AuthContext from '../context/auth-context';
 import { db } from '../firebase-config';
 import { addDoc, collection } from 'firebase/firestore';
 import { uid } from 'uid';
-
 const MsgEntry = (props) => {
     // eslint-disable-next-line no-unused-vars 
     const [prompt, setPrompt] = useState(null);
     const [typingStartTime, setTypingStartTime] = useState(null); // Timestamp for when user starts typing
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const toggleModal = () => setIsModalOpen(prevState => !prevState);
     const textRef = useRef();  
     const taskCtx = useContext(TaskContext)
     const authCtx = useContext(AuthContext)
@@ -82,9 +82,16 @@ const MsgEntry = (props) => {
                     </textarea>
                     <button
                         title='Microphone recording'
+                        onClick={props.onMicrophoneClick}
                     >
                         <img src={microphone_icon} alt=""/>
                     </button>
+                    {/* {
+                    isModalOpen && 
+                    <div className="fixed h-screen flex-col bg-[#142838] py-12 px-16 rounded-xl text-white">
+                        <RecordingModal isOpen={isModalOpen} onClose={toggleModal} />
+                    </div>
+                }                     */}
             </div>
             <button 
                 onClick={sendPrompt}

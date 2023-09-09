@@ -3,6 +3,7 @@ import {useState, useContext} from 'react';
 import { useRef, useEffect } from 'react';
 import MsgEntry from './MsgEntry'
 import Prompt from './prompt';
+import RecordingModal from './RecordingModal';
 
 import { openai } from '../openai-config';
 import user_profile from '../assets/chatbox/user_profile.svg'
@@ -37,6 +38,7 @@ function ChatBox (){
     const authCtx = useContext(AuthContext)
     const favCtx = useContext(FavouritesContext)
     const queCtx = useContext(QueContext)
+    const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
     // gpt related states
     const [promptSuggestions, setPromptSuggestions] = useState([])
@@ -243,11 +245,10 @@ function ChatBox (){
     }
 
 
-    // const renderers = {
-    //     code: ({ language, value }) => {
-    //         return <code>{value}</code>;
-    //     }
-    // };
+    const toggleRecordingModal = () => {
+        setIsRecordingModalOpen(prevState => !prevState);
+    };
+    
 
     const renderers = {
         code({ node, inline, className, children, ...props }) {
@@ -335,8 +336,14 @@ function ChatBox (){
                     setPromptID = {setPromptID}
                     responseID = {responseID}
                     setPromptResponseArray={setPromptResponseArray} promptResponseArray={promptResponseArray}
-                    setPrompt={setPrompt} getAPIResponse={getAPIResponse}/>
+                    setPrompt={setPrompt} getAPIResponse={getAPIResponse}
+                    onMicrophoneClick={toggleRecordingModal}/>
             </div>
+            {isRecordingModalOpen && 
+                <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
+                    <RecordingModal isOpen={isRecordingModalOpen} onClose={toggleRecordingModal} />
+                </div>
+            }            
         </div>
     );
 
