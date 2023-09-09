@@ -174,15 +174,30 @@ function ChatBox (){
             const completion = await openai.chat.completions.create({
                     model: "gpt-3.5-turbo",
                     messages: filteredMessages,
+                    stream: true,
                 });
-            const message = completion.choices[0].message
-            const typingEndTime = new Date()
-            const tempResponseID = uid()
+            let accumulatedResponse = '';
+            let message = '';
+            const tempResponseID = uid();
             setResponseID(tempResponseID)
-            array.push({...message, id: tempResponseID});
-            setPromptResponseArray([...array])
+            for await (const part of completion) {
+                message = part.choices[0]?.delta?.content || '';
+                // console.log(message)
+                accumulatedResponse += message;
+                console.log(accumulatedResponse)
+                if (array.length > 0 && array[array.length - 1].id === tempResponseID) {
+                    // Update the last message in the array
+                    array[array.length - 1].content = accumulatedResponse;
+                } else {
+                    // Append a new message object
+                    array.push({ role: 'assistant', content: accumulatedResponse, id: tempResponseID });
+                }                
+                setPromptResponseArray([...array])  // This will trigger a re-render and the renderer will process the updated response
+            }
+            // const message = completion.choices[0].message
+            const typingEndTime = new Date()
             // Save the response to Firestore database
-            await saveResponseToFirestore(message, promptID, tempResponseID, typingStartTime, typingEndTime);
+            await saveResponseToFirestore(accumulatedResponse, promptID, tempResponseID, typingStartTime, typingEndTime);
             getPromptSuggestions(array)
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -197,7 +212,7 @@ function ChatBox (){
                 id: tempResponseID,
                 ratingID: null,
                 taskID: taskCtx?.taskID || '',
-                prompt: message.content,
+                prompt: message,
                 responseTo: promptID,
                 userID: authCtx?.user.uid || '',
                 role: 'assistant',
