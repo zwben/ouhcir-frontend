@@ -1,18 +1,48 @@
-import {useState, useRef, useContext} from 'react';
-import { ReactMic } from 'react-mic';
-import send_message_icon from "../assets/msg_entry/send_message_icon.svg"
+import {useState, useRef, useContext, useEffect} from 'react';
 import microphone_icon from "../assets/msg_entry/microphone_icon.svg"
 import TaskContext from '../context/task-context';
 import AuthContext from '../context/auth-context';
 import { db } from '../firebase-config';
+
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from '@firebase/storage';
+
 import { addDoc, collection } from 'firebase/firestore';
 import { uid } from 'uid';
 
 const RecordingModal = ({isOpen, onClose}) => {
-    // eslint-disable-next-line no-unused-vars 
-    const [prompt, setPrompt] = useState(null);
+
+
+const [elapsedTime, setElapsedTime] = useState(0);
+
+const [timerStatus, setTimerStatus] = useState('reset');
+
     const [typingStartTime, setTypingStartTime] = useState(null); // Timestamp for when user starts typing
     const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
+
+const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
+    // eslint-disable-next-line no-unused-vars 
+    const [prompt, setPrompt] = useState(null);
+
+useEffect(() => {
+    let interval;
+    if (timerStatus === 'running') {
+        interval = setInterval(() => {
+            setElapsedTime(prevTime => prevTime + 1);
+        }, 1000);
+    } else if (timerStatus === 'reset') {
+        setElapsedTime(0);
+    }
+
+    return () => {
+        clearInterval(interval);
+    };
+}, [timerStatus]);
+
     const openRecordingModal = () => {
     startRecording();
         setIsRecordingModalOpen(true);
@@ -26,10 +56,15 @@ const RecordingModal = ({isOpen, onClose}) => {
     const [recordingEndTime, setRecordingEndTime] = useState(null);
     const [recordID, setRecordID] = useState(null);
 
+    const [audioData, setAudioData] = useState([]);
+    const [playbackURL, setPlaybackURL] = useState("");
+
+
     const textRef = useRef();  
     const taskCtx = useContext(TaskContext)
     const authCtx = useContext(AuthContext)
     const startRecording = async () => {
+    setTimerStatus('running');
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const recorder = new MediaRecorder(stream);
         setMediaRecorder(recorder);
@@ -40,6 +75,11 @@ const RecordingModal = ({isOpen, onClose}) => {
         const newRecordID = uid();
         setRecordID(newRecordID);
         
+        
+    recorder.ondataavailable = (event) => {
+        setAudioData((prevData) => [...prevData, event.data]);
+    };
+
         recorder.onstop = () => {
             // Handle recording stop
             setRecordingEndTime(new Date());
@@ -48,27 +88,78 @@ const RecordingModal = ({isOpen, onClose}) => {
     };
     
     const stopRecording = () => {
+    setTimerStatus('paused');
         if (mediaRecorder) {
             mediaRecorder.stop();
+
+        const audioBlob = new Blob(audioData, { type: 'audio/wav' });
+        const audioURL = URL.createObjectURL(audioBlob);
+        setPlaybackURL(audioURL);
+
        }
     };
-    const saveRecordingDetails = async () => {
-        const recordingDetails = {
-            id: recordID,
-            taskID: taskCtx?.taskID || '',
-            userID: authCtx?.user.uid || '',
-            recordingStartTime,
-            recordingEndTime
-        };
-        
-        try {
-            const recordingRef = collection(db, 'recordings'); // Assuming there's a 'recordings' collection in Firestore
-            await addDoc(recordingRef, recordingDetails);
-            console.log('Recording details saved successfully!');
-        } catch (error) {
-            console.error('Error saving recording details:', error);
+    
+    const discardRecording = () => {
+    setTimerStatus('reset');
+        if (mediaRecorder) {
+            mediaRecorder.stop();
+
+        const audioBlob = new Blob(audioData, { type: 'audio/wav' });
+        const audioURL = URL.createObjectURL(audioBlob);
+        setPlaybackURL(audioURL);
+
         }
+        setRecordID(null);
+        setRecordingStartTime(null);
+        setRecordingEndTime(null);
     };
+
+    
+    const playRecording = () => {
+        const audio = new Audio(playbackURL);
+        audio.play();
+    };
+
+    const saveRecordingDetails = async () => {
+        const audioBlob = new Blob(audioData, { type: 'audio/wav' });
+        const storage = getStorage();
+        // 1. Upload the audio file to Firebase Storage
+        // Assuming 'recordings' is your desired storage folder
+        const storageRef = ref(storage, 'recordings/' + recordID + '.wav');
+        const uploadTask = uploadBytesResumable(storageRef, audioBlob);
+    
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                // Track the upload progress (Optional)
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+            }, 
+            (error) => {
+                console.error('Error uploading file:', error);
+            }, 
+            async () => {
+                // Handle successful uploads on complete
+                try {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    const recordingDetails = {
+                        id: recordID,
+                        taskID: taskCtx?.taskID || '',
+                        userID: authCtx?.user.uid || '',
+                        recordingStartTime,
+                        recordingEndTime,
+                        audioFileURL: downloadURL // This is the URL to access the audio file
+                    };
+    
+                    const recordingRef = collection(db, 'recordings');
+                    await addDoc(recordingRef, recordingDetails);
+                    console.log('Recording details and audio file saved successfully!');
+                } catch (error) {
+                    console.error('Error saving recording details:', error);
+                }
+            }
+        );
+    };
+    
         
     return(
         <div className='flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl'>
@@ -79,6 +170,14 @@ const RecordingModal = ({isOpen, onClose}) => {
                 <h3>Template</h3>
                 <p>[Your thoughts here...]</p>
                 <button onClick={onClose}>Close Modal</button>
+            <button onClick={startRecording}>Start Recording</button>
+            <div className="recording-timer">{formatTime(elapsedTime)}</div>
+            <button onClick={stopRecording}>End Recording</button>
+            <button onClick={discardRecording}>Discard</button>
+            <button onClick={saveRecordingDetails}>Save</button>
+            <button onClick={playRecording}>Play Recording</button>
+
+
             </div>
         
         </div>
