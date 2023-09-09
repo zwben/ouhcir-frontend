@@ -1,8 +1,9 @@
-import { Configuration, OpenAIApi } from "openai";
-const configuration = new Configuration({
+import OpenAI from "openai";
+
+// delete configuration.baseOptions.headers['User-Agent'];
+
+export const openai = new OpenAI({
     organization: "org-ckyITK04BLyIhpKcFWGyUcRH",
     apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true
 });
-delete configuration.baseOptions.headers['User-Agent'];
-
-export const openai = new OpenAIApi(configuration);
