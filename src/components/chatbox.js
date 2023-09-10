@@ -38,6 +38,8 @@ function ChatBox (){
     const favCtx = useContext(FavouritesContext)
     const queCtx = useContext(QueContext)
     const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
+    const [fromSuggested, setFromSuggested] = useState(false);
+    const [fromSuggestedTime, setFromSuggestedTime] = useState(null);
 
     // gpt related states
     const [promptSuggestions, setPromptSuggestions] = useState([])
@@ -50,11 +52,21 @@ function ChatBox (){
         if (response !== '' || promptResponseArray.length >=2 ){
             try{
                 const arrLength = promptResponseArray.length
-                const {taskTopic, taskType, topicFamiliaritySpecificOptions, topicFamiliaritySpecificSelectedOption,expectedComplexitySpecificOptions, expectedComplexitySpecificSelectedOption, expectedSpendingTime, expectedOutcome,} = queCtx.formData
+                const {taskTopic, taskType, topicFamiliaritySpecificOptions, 
+                    topicFamiliaritySpecificSelectedOption,expectedComplexitySpecificOptions, 
+                    expectedComplexitySpecificSelectedOption, expectedSpendingTime, 
+                    expectedOutcome,} = queCtx.formData
                 const messages = [
                         {
                             "role": "system",
-                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".  The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better.`
+                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. 
+                            The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
+                            stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". 
+                            The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), 
+                            ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. 
+                            The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. 
+                            Given the familiarity level, complexity level, and user expectations, 
+                            adjust your answers so that the user can understand better.`
                         },
                     ];
                 const filteredPromptResponseArray = promptResponseArray.map(({ id, ratingID, ...rest }) => rest);
@@ -66,7 +78,9 @@ function ChatBox (){
                 messages.push(filteredPromptResponseArray[arrLength - 1]);
                 messages.push({
                     "role": "user",
-                    "content": "Please generate five follow up questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions"
+                    "content": `Please generate five follow up questions related to this task and topic that the user is most likely to ask. 
+                    You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. 
+                    You output must be as a json array of just the questions`
                     
                 })
                 const response = await openai.chat.completions.create({
@@ -74,7 +88,7 @@ function ChatBox (){
                     messages: messages,
                     max_tokens: 256,
                 });
-            
+                // console.log(response)
                 const res = JSON.parse(response.choices[0].message.content);
                 setPromptSuggestions(res)
                 } catch(e){
@@ -100,11 +114,20 @@ function ChatBox (){
                 const messages = [
                         {
                             "role": "system",
-                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".  The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better.`
+                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. 
+                            The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
+                            stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". 
+                            The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), 
+                            ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. 
+                            The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. 
+                            Given the familiarity level, complexity level, and user expectations, 
+                            adjust your answers so that the user can understand better.`
                         },
                         {
                             "role": "user",
-                            "content": "Please generate five questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions"
+                            "content": `Please generate five questions related to this task and topic that the user is most likely to ask. 
+                            You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. 
+                            You output must be as a json array of just the questions`
                         },
                     ];
             
@@ -122,15 +145,14 @@ function ChatBox (){
         }
         if (queCtx.formData !== null) {
             getQuestionSuggestions(queCtx.formData);
-            getPromptSuggestions(promptResponseArray)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [promptResponseArray, queCtx.formData]);                      
+    }, [queCtx.formData]);                      
 
     // to handle automatic scrolling to the end
-    useEffect(() => {
-        window.scrollTo(0, document.documentElement.scrollHeight);
-    }, [getPromptSuggestions, promptResponseArray, queCtx.formData]);
+    // useEffect(() => {
+    //     window.scrollTo(0, document.documentElement.scrollHeight);
+    // }, [getPromptSuggestions, promptResponseArray, queCtx.formData]);
     
     // To get the chat history
     useEffect(() => {
@@ -165,15 +187,47 @@ function ChatBox (){
     const getAPIResponse = async (array, promptID) => {  
         try {
             setIsLoading(true)
+            setFromSuggested(false)
+
             // Filter out the IDs from the array
             const filteredMessages = array.map((message) => {
                 const { role, content } = message;
                 return { role, content };
             });
+            let messages = []
+            if (taskCtx.taskID){
+                const {taskTopic, taskType, topicFamiliaritySpecificOptions, 
+                    topicFamiliaritySpecificSelectedOption,expectedComplexitySpecificOptions, 
+                    expectedComplexitySpecificSelectedOption, expectedSpendingTime, 
+                    expectedOutcome,} = queCtx.formData
+
+                messages = [
+                    {
+                        "role": "system",
+                        "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. 
+                        The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
+                        stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". 
+                        The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), 
+                        ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. 
+                        The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. 
+                        Given the familiarity level, complexity level, and user expectations, 
+                        adjust your answers so that the user can understand better.
+                        Provide you answer in a markdown format.`
+                    },
+            ];}
+            else{
+                messages = [{"role": "system", "content": `You are an assistant answering users' questions focusing on specific tasks. 
+                As the user has not provide the task information, you need to politely remind the user to take the pre-task questionnaire.`},];
+
+            }
+
+            // filteredMessages[filteredMessages.length - 1].content += '. Provide you answer in a markdown format';
+            messages.push(...filteredMessages);
+            // console.log(messages)
             const typingStartTime = new Date()
             const completion = await openai.chat.completions.create({
                     model: "gpt-3.5-turbo",
-                    messages: filteredMessages,
+                    messages: messages,
                     stream: true,
                 });
             let accumulatedResponse = '';
@@ -184,7 +238,7 @@ function ChatBox (){
                 message = part.choices[0]?.delta?.content || '';
                 // console.log(message)
                 accumulatedResponse += message;
-                console.log(accumulatedResponse)
+                // console.log(accumulatedResponse)
                 if (array.length > 0 && array[array.length - 1].id === tempResponseID) {
                     // Update the last message in the array
                     array[array.length - 1].content = accumulatedResponse;
@@ -198,7 +252,9 @@ function ChatBox (){
             const typingEndTime = new Date()
             // Save the response to Firestore database
             await saveResponseToFirestore(accumulatedResponse, promptID, tempResponseID, typingStartTime, typingEndTime);
-            getPromptSuggestions(array)
+            if (taskCtx.taskID){
+                getPromptSuggestions(array);
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -225,7 +281,9 @@ function ChatBox (){
       };
     
     const handleQuestionClicked = (value) => {
-        setMsgEntryText(value)
+        setMsgEntryText(value);
+        setFromSuggested(true);
+        setFromSuggestedTime(new Date());
     }
     var questionSuggestionsComp = null
     var promptSuggestionsComp = null
@@ -349,6 +407,8 @@ function ChatBox (){
                     setMsgEntryText={setMsgEntryText}
                     setPromptID = {setPromptID}
                     responseID = {responseID}
+                    fromSuggested = {fromSuggested}
+                    fromSuggestedTime = {fromSuggestedTime}
                     setPromptResponseArray={setPromptResponseArray} promptResponseArray={promptResponseArray}
                     setPrompt={setPrompt} getAPIResponse={getAPIResponse}
                     onMicrophoneClick={toggleRecordingModal}/>

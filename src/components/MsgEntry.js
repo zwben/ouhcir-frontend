@@ -9,7 +9,7 @@ import { uid } from 'uid';
 const MsgEntry = (props) => {
     // eslint-disable-next-line no-unused-vars 
     const [prompt, setPrompt] = useState(null);
-    const [typingStartTime, setTypingStartTime] = useState(null); // Timestamp for when user starts typing
+    let [typingStartTime, setTypingStartTime] = useState(null); // Timestamp for when user starts typing
     const [isModalOpen, setIsModalOpen] = useState(false);
     const toggleModal = () => setIsModalOpen(prevState => !prevState);
     const textRef = useRef();  
@@ -39,6 +39,13 @@ const MsgEntry = (props) => {
                 const promptRef = collection(db, 'chatsIndividual');
                 const promptID = uid()
                 props.setPromptID(promptID)
+                let modifiedSuggestion = false;
+                if (props.fromSuggested) {
+                    if (typingStartTime) {
+                        modifiedSuggestion = true;
+                    }
+                    typingStartTime = props.fromSuggestedTime;
+                }
                 // eslint-disable-next-line no-unused-vars
                 const docRef = await addDoc(promptRef, {
                         id: promptID,
@@ -48,9 +55,12 @@ const MsgEntry = (props) => {
                         prompt: newMessage,
                         userID: authCtx?.user.uid || '', 
                         role: 'user',
+                        fromSuggested: props.fromSuggested,
+                        modifiedSuggestions: modifiedSuggestion,
                         typingStartTime,
                         typingEndTime: new Date(),
                     });
+                // console.log(props.fromSuggested);
                 props.setPrompt(newMessage)
                 const updatedMessagesArray = [...props.promptResponseArray, {role: "user", content: newMessage, id: promptID}];
                 // get the response from API
