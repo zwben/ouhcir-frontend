@@ -163,24 +163,31 @@ useEffect(() => {
         
     return(
         <div className='flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl'>
-            <div>
+            <div className='text-white'>
                 <h3>Think Aloud Protocol</h3>
                 <p>Please speak your thoughts aloud as you complete the task.</p>
                 <p>This will help us understand your thought process and any challenges you face.</p>
                 <h3>Template</h3>
                 <p>[Your thoughts here...]</p>
-                <button onClick={onClose}>Close Modal</button>
-            <button onClick={startRecording}>Start Recording</button>
-            <div className="recording-timer">{formatTime(elapsedTime)}</div>
-            <button onClick={stopRecording}>End Recording</button>
-            <button onClick={discardRecording}>Discard</button>
-            <button onClick={saveRecordingDetails}>Save</button>
-            <button onClick={playRecording}>Play Recording</button>
-
-
+                <div className="flex justify-center text-lg">{formatTime(elapsedTime)}</div>
             </div>
-        
+
+            <div className="flex flex-row justify-between mt-12">
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={startRecording}>Start Recording</button>
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={stopRecording}> End Recording</button>
+            </div>
+
+            <div className="flex flex-row justify-between mt-12">
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={discardRecording}>Discard</button>
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={playRecording}>Play Recording</button>
+            </div>
+
+            <div className="flex flex-row justify-between mt-12">
+                <button className="underline text-white w-1/3" onClick={onClose}> Close </button>
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={saveRecordingDetails}> Submit </button>
+            </div>
         </div>
+
     );
 }
 export default RecordingModal;

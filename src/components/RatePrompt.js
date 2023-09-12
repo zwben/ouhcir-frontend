@@ -152,7 +152,7 @@ const RatePrompt = (props) => {
             {/* {topicFamiliaritySpecificOptions.length === 0 && submitClicked && <p className="text-red-500 text-sm">required</p>} */}
         
         {!isLoading ? (
-            <div class="container py-3 px-10 mx-0 min-w-full flex flex-col items-center">
+            <div className="container py-3 px-10 mx-0 min-w-full flex flex-col items-center">
                 <button 
                     className="inline-flex justify-center bg-white px-6 py-2 w-fit rounded-2xl text-black"
                     onClick={handleGenerateExplanation}

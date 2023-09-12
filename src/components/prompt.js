@@ -59,7 +59,7 @@ const Prompt = (props) => {
                 </button>
             </div>
             {props.role === 'assistant' && !props.ratingID && 
-                <p className="absolute top-50% transform -translate-y-50% right-20 text-red-400 text-sm">Not rated. Click ... button</p>
+                <p className="absolute top-100% transform -translate-y-5 right-20 text-red-400 text-sm">Not rated. Click ... button</p>
             }
             {showCommentPopup && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
                 <CommentPopUp 
