@@ -16,17 +16,13 @@ const [elapsedTime, setElapsedTime] = useState(0);
 
 const [timerStatus, setTimerStatus] = useState('reset');
 
-    const [typingStartTime, setTypingStartTime] = useState(null); // Timestamp for when user starts typing
-    const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
+const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
 const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 };
-
-    // eslint-disable-next-line no-unused-vars 
-    const [prompt, setPrompt] = useState(null);
 
 useEffect(() => {
     let interval;
@@ -63,6 +59,7 @@ useEffect(() => {
     const textRef = useRef();  
     const taskCtx = useContext(TaskContext)
     const authCtx = useContext(AuthContext)
+
     const startRecording = async () => {
     setTimerStatus('running');
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -83,7 +80,6 @@ useEffect(() => {
         recorder.onstop = () => {
             // Handle recording stop
             setRecordingEndTime(new Date());
-            // TODO: Save recording data to Firestore (Step 3)
         };
     };
     
@@ -104,23 +100,39 @@ useEffect(() => {
         if (mediaRecorder) {
             mediaRecorder.stop();
 
-        const audioBlob = new Blob(audioData, { type: 'audio/wav' });
-        const audioURL = URL.createObjectURL(audioBlob);
-        setPlaybackURL(audioURL);
-
         }
+        setAudioData([]);
         setRecordID(null);
         setRecordingStartTime(null);
         setRecordingEndTime(null);
     };
 
     
-    const playRecording = () => {
-        const audio = new Audio(playbackURL);
-        audio.play();
+    const playRecording = async () => {
+        if (audioData.length === 0) {
+            console.error("No audio data available for playback.");
+            return;
+        }
+        
+        // Create a blob from the audio data
+        const audioBlob = new Blob(audioData, { type: 'audio/wav' });
+        const audioURL = URL.createObjectURL(audioBlob);
+    
+        const audio = new Audio(audioURL);
+        try {
+            await audio.play();
+        } catch (error) {
+            console.error("Error playing audio:", error);
+        }
     };
 
     const saveRecordingDetails = async () => {
+        if (audioData.length === 0) {
+            window.alert("No audio data available for upload.");
+            return;
+        }
+        const shouldProceed = window.confirm('Are you sure you want to upload the recording?');
+        if(shouldProceed){
         const audioBlob = new Blob(audioData, { type: 'audio/wav' });
         const storage = getStorage();
         // 1. Upload the audio file to Firebase Storage
@@ -158,33 +170,55 @@ useEffect(() => {
                 }
             }
         );
+    }
     };
     
-        
+    const handleClose = () => {
+        if (audioData.length!==0) {
+            const userConfirmed = window.confirm("You have an unsaved recording. Do you want to upload it before close?");
+            if (userConfirmed) {
+                saveRecordingDetails();
+                onClose();
+            }
+        } else {
+            onClose();
+        }
+    };
+            
     return(
-        <div className='flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl'>
+        <div className='flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl w-1/2'>
             <div className='text-white'>
-                <h3>Think Aloud Protocol</h3>
-                <p>Please speak your thoughts aloud as you complete the task.</p>
-                <p>This will help us understand your thought process and any challenges you face.</p>
-                <h3>Template</h3>
-                <p>[Your thoughts here...]</p>
-                <div className="flex justify-center text-lg">{formatTime(elapsedTime)}</div>
+                <h3 className='text-center text-lg'>Think Aloud Protocol</h3>
+                <p className='italic'>
+                    When interacting with ChatGPT, we would appreciate it if you could verbalize your thoughts and reactions.
+                    The goal is to capture your impressions and insights as you write your questions (prompts) and read the outputs.
+                    </p>
+                <p className='underline mt-4'>As you compose your prompts:</p>
+                <p>• Share your initial expectations, concerns, or uncertainties about how ChatGPT will respond.</p>
+                <p>• Explain any context or background information that you think is relevant.</p>
+                <p>• Articulate the reasoning behind the structure or wording of your questions.</p>
+                <p className='underline'>While reading ChatGPT's outputs:</p>
+                <p>• Express your thoughts on the quality and relevance of the generated responses.</p>
+                <p>• Highlight any surprising or insightful aspects of the outputs.</p>
+                <p>• Identify areas where the responses may be helpful or need improvement.</p>
+                <p className='italic mt-4'>Remember, we value your honest feedback and suggestions. Your recordings will be treated confidentially and used only for research and improvement purposes. Your input will help us enhance the ChatGPT experience.</p>
+
+                <div className="flex justify-center text-lg mt-6">{formatTime(elapsedTime)}</div>
             </div>
 
-            <div className="flex flex-row justify-between mt-12">
+            <div className="flex flex-row justify-between mt-4">
                 <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={startRecording}>Start Recording</button>
                 <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={stopRecording}> End Recording</button>
             </div>
 
-            <div className="flex flex-row justify-between mt-12">
+            <div className="flex flex-row justify-between mt-4">
                 <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={discardRecording}>Discard</button>
                 <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={playRecording}>Play Recording</button>
             </div>
 
             <div className="flex flex-row justify-between mt-12">
-                <button className="underline text-white w-1/3" onClick={onClose}> Close </button>
-                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={saveRecordingDetails}> Submit </button>
+                <button className="underline text-white w-1/3" onClick={handleClose}> Close </button>
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={saveRecordingDetails}> Upload </button>
             </div>
         </div>
 

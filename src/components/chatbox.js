@@ -56,37 +56,34 @@ function ChatBox (){
                     topicFamiliaritySpecificSelectedOption,expectedComplexitySpecificOptions, 
                     expectedComplexitySpecificSelectedOption, expectedSpendingTime, 
                     expectedOutcome,} = queCtx.formData
-                const messages = [
-                        {
-                            "role": "system",
-                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. 
-                            The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
-                            stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". 
-                            The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), 
-                            ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. 
-                            The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. 
-                            Given the familiarity level, complexity level, and user expectations, 
-                            adjust your answers so that the user can understand better.`
-                        },
-                    ];
+                
                 const filteredPromptResponseArray = promptResponseArray.map(({ id, ratingID, ...rest }) => rest);
-
+                const prevConversation = []
                 // Push the second-to-last element without the 'id' property
-                messages.push(filteredPromptResponseArray[arrLength - 2]);
+                prevConversation.push(filteredPromptResponseArray[arrLength - 2]);
                 
                 // Push the last element without the 'id' property
-                messages.push(filteredPromptResponseArray[arrLength - 1]);
-                messages.push({
-                    "role": "user",
-                    "content": `Please generate five follow up questions related to this task and topic that the user is most likely to ask. 
-                    You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. 
-                    You output must be as a json array of just the questions`
-                    
-                })
+                prevConversation.push(filteredPromptResponseArray[arrLength - 1]);
+                // console.log(prevConversation)
+
+                const messages = [
+                    {
+                        "role": "system",
+                        "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better.`
+                    },
+                    {
+                        "role": "user",
+                        "content": `The user entered an instruction prompt: "${prevConversation[0].content}". Please generate five improved prompts by revising the previous prompt: "${prevConversation[0].content}" in terms of clarity. The new generated prompts should be related to this task and topic that can help the user proceed the task. You output must be as a json array of just the questions`
+                
+                    }
+                ];
+                
+
+                console.log(messages)
                 const response = await openai.chat.completions.create({
                     model: "gpt-3.5-turbo",
                     messages: messages,
-                    max_tokens: 256,
+                    max_tokens: 512,
                 });
                 // console.log(response)
                 const res = JSON.parse(response.choices[0].message.content);
@@ -96,9 +93,9 @@ function ChatBox (){
                 }
         }
     }
-    // to get prompt suggestions and question suggestions
+    // to get question suggestions
     useEffect(() => {
-        const getQuestionSuggestions = async (formData) => {
+        const getQuestionSuggestions = async (formData, promptResponseArray) => {
             try{
                 const {
                     taskTopic,
@@ -110,31 +107,39 @@ function ChatBox (){
                     expectedSpendingTime,
                     expectedOutcome,
                 } = formData
-        
+ 
                 const messages = [
                         {
                             "role": "system",
-                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. 
-                            The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
-                            stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". 
-                            The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), 
-                            ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. 
-                            The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. 
-                            Given the familiarity level, complexity level, and user expectations, 
-                            adjust your answers so that the user can understand better.`
-                        },
-                        {
-                            "role": "user",
-                            "content": `Please generate five questions related to this task and topic that the user is most likely to ask. 
-                            You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. 
-                            You output must be as a json array of just the questions`
+                            "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better.`
                         },
                     ];
-            
+
+                if ( promptResponseArray.length >=2 ){
+                    const arrLength = promptResponseArray.length
+                    const filteredPromptResponseArray = promptResponseArray.map(({ id, ratingID, ...rest }) => rest);
+                    const prevConversation = []
+                    // Push the second-to-last element without the 'id' property
+                    prevConversation.push(filteredPromptResponseArray[arrLength - 2]);
+                    
+                    // Push the last element without the 'id' property
+                    prevConversation.push(filteredPromptResponseArray[arrLength - 1]);
+                    messages.push({
+                        "role": "user",
+                        "content": `The user has a previous conversation with you: ### "User": "${prevConversation[0].content}"; "Assistant": "${prevConversation[1].content.slice(0, 2000)}"###. Based on the previous conversation, please generate five follow up questions related to this task and topic that the user is most likely to ask for the next step. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions`
+                    })
+                    }
+                else{
+                    messages.push({
+                        "role": "user",
+                        "content": `Please generate five questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions`
+                    })
+                }
+                console.log(messages)
                 const response = await openai.chat.completions.create({
                     model: "gpt-3.5-turbo",
                     messages: messages,
-                    max_tokens: 256,
+                    max_tokens: 1024,
                 });
             
                 const res = JSON.parse(response.choices[0].message.content);
@@ -143,16 +148,16 @@ function ChatBox (){
                     console.log(e)
                 }
         }
-        if (queCtx.formData !== null) {
-            getQuestionSuggestions(queCtx.formData);
+        if (queCtx.formData !== null && !isLoading) {
+            getQuestionSuggestions(queCtx.formData, promptResponseArray);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queCtx.formData]);                      
+    }, [queCtx.formData, isLoading]);                      
 
     // to handle automatic scrolling to the end
-    // useEffect(() => {
-    //     window.scrollTo(0, document.documentElement.scrollHeight);
-    // }, [getPromptSuggestions, promptResponseArray, queCtx.formData]);
+    useEffect(() => {
+        window.scrollTo(0, document.documentElement.scrollHeight);
+    }, [getPromptSuggestions, promptResponseArray, queCtx.formData]);
     
     // To get the chat history
     useEffect(() => {
@@ -204,20 +209,11 @@ function ChatBox (){
                 messages = [
                     {
                         "role": "system",
-                        "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. 
-                        The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
-                        stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". 
-                        The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), 
-                        ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. 
-                        The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. 
-                        Given the familiarity level, complexity level, and user expectations, 
-                        adjust your answers so that the user can understand better.
-                        Provide you answer in a markdown format.`
+                        "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better. Provide you answer in a markdown format.`
                     },
             ];}
             else{
-                messages = [{"role": "system", "content": `You are an assistant answering users' questions focusing on specific tasks. 
-                As the user has not provide the task information, you need to politely remind the user to take the pre-task questionnaire.`},];
+                messages = [{"role": "system", "content": `You are an assistant answering users' questions focusing on specific tasks. As the user has not provide the task information, you need to politely remind the user to take the pre-task questionnaire.`},];
 
             }
 
@@ -390,7 +386,7 @@ function ChatBox (){
         <div className="bg-[#2f4454] flex w-full h-full justify-center flex-col" >         
             <div className='w-full mb-56'>
                 {messageComponents}
-                {isLoading && <Prompt text='Loading...' bgColor={bgObj.ai} profile_image={ai_profile} />}
+                {/* {isLoading && <Prompt text='Loading...' bgColor={bgObj.ai} profile_image={ai_profile} />} */}
             </div>
             {questionsSuggestions.length > 0 && <div className="fixed bottom-[170px] flex flex-row space-x-4 w-fit max-w-[75%] ml-4">
                 <h1 className='text-[#D9D9D9]'>Questions</h1>

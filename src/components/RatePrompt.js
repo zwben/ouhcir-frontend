@@ -45,9 +45,7 @@ const RatePrompt = (props) => {
     const prompt = querySnapshot.docs[0].data().prompt;
     let explainMessage = '';
     if (role === 'user') {
-        explainMessage = `The user entered a prompt: "${prompt}". 
-        The user is reviewing how the prompt relates to and help proceed the task.
-        Please provide five short possible explanations for user's intentions with that prompt.`
+        explainMessage = `The user entered a prompt: "${prompt}". The user is reviewing how the prompt relates to and help proceed the task. Please provide five short possible explanations for user's intentions with that prompt.`
     }
     else if (role === 'assistant') {
         const previousQ = query(
@@ -58,22 +56,13 @@ const RatePrompt = (props) => {
         // const previousQ = query(q, orderBy('typingEndTime', 'desc'), startAt(props.promptID), limit(1));
         const prevQuerySnapshot = await getDocs(previousQ);
         const prevPrompt = prevQuerySnapshot.docs[0].data().prompt;
-        explainMessage = `The user entered a prompt: "${prevPrompt}", and ChatGPT responsed: "${prompt}". 
-        The user is reviewing how the prompt and response relates to and help proceed the task.
-        Please provide five short possible explanations for how ChatGPT addressed the user's needs.`
+        explainMessage = `The user entered a prompt: "${prevPrompt}", and ChatGPT responsed: "${prompt}". The user is reviewing how the prompt and response relates to and help proceed the task. Please provide five short possible explanations for how ChatGPT addressed the user's needs.`
         // console.log(prevPrompt)
         }
     const messages=[
         {
           "role": "system",
-          "content": `You are an assistant help the user ${taskType +' about '+ taskTopic}. 
-          The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
-           stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".
-            The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), 
-            ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. 
-            The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. 
-            Given the familiarity level, complexity level, and user expectations, 
-            adjust your answers so that the user can understand better.`
+          "content": `You are an assistant help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}".The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better.`
         },
         {
           "role": "user",

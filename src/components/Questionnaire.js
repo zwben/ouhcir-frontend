@@ -135,10 +135,7 @@ const Questionnaire = (props) => {
             },
             {
               "role": "user",
-              "content": `provide a five-degree familiarity of the topic, each degree comes with a short sentence of 
-                        description and an example, for users to better understand which familiarity level represent. 
-                        The example must be easy to understand for users at the corresponding familiarity level.
-                        You output must be in the json format with the keys: degree, {description, and example}`
+              "content": `provide a five-degree familiarity of the topic, each degree comes with a short sentence of description and an example, for users to better understand which familiarity level represent. The example must be easy to understand for users at the corresponding familiarity level. You output must be in the json format with the keys: degree, {description, and example}`
             }]
         console.log(messages)
         const response = await openai.chat.completions.create({
@@ -167,19 +164,11 @@ const Questionnaire = (props) => {
         const messages=[
             {
               "role": "system",
-              "content": `You are an assistant to help the user learn the topic: ${taskTopic}.
-                     The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), 
-                     stating "${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". 
-                     The user's task goal is ${taskTypeCheckboxes} about ${taskTopic}. 
-                      Given this task topic, task goal, and familiarity level, adjust your answers so that the user can understand better.`
+              "content": `You are an assistant to help the user learn the topic: ${taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating "${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". The user's task goal is ${taskTypeCheckboxes} about ${taskTopic}. Given this task topic, task goal, and familiarity level, adjust your answers so that the user can understand better.`
             },
             {
               "role": "user",
-              "content": `Provide a five-degree complexity 
-                        of users' task goal, each degree comes with a short sentence of description and an example, 
-                        for users to better understand which complexity level represent. 
-                            The example must be easy to understand for users at the corresponding complexity level.
-                            You output must be in the json format with the keys: degree {description, and example}`
+              "content": `Provide a five-degree complexity of users' task goal, each degree comes with a short sentence of description and an example, for users to better understand which complexity level represent. The example must be easy to understand for users at the corresponding complexity level. You output must be in the json format with the keys: degree {description, and example}`
             }]
         console.log(messages)
         const response = await openai.chat.completions.create({
@@ -205,7 +194,7 @@ const Questionnaire = (props) => {
             <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
                 {/* Question 1 */}
                 <div className="flex flex-row items-center space-x-2">
-                    <h1>1. Task name  *</h1>
+                    <h1>1. Task topic  *</h1>
                     {!taskTopic && submitClicked && <p className="text-red-500 text-sm">required</p>}
                 </div>
                 
