@@ -7,18 +7,21 @@ import TaskContext from '../context/task-context';
 import { openai } from '../openai-config';
 
 const RatePrompt = (props) => {
-  const [usefulnessRating, setUsefulnessRating] = useState(null);
-  const [credibilityRating, setCredibilityRating] = useState(null);
-  const [recommendationRating, setRecommendationRating] = useState(null);
-  const [satisfactionRating, setSatisfactionRating] = useState(null);
-  const [explanationOptions, setExplanationOptions] = useState([])
-  const [explanationSelectedOption, setExplanationSelectedOption] = useState(-1)
-  const [explanationRate, setExplanationRate] = useState(-1)
-  const [isLoading, setIsLoading] = useState(false);
-  const [selfExp, setSelfExp] = useState('')
-  const queCtx = useContext(QueContext)
-  const taskCtx = useContext(TaskContext)
-  const explanationRateList = [
+    const [explanationOptions, setExplanationOptions] = useState([]);
+    const [explanationSelectedOption, setExplanationSelectedOption] = useState(-1);
+    const [explanationRate, setExplanationRate] = useState(-1);
+    const [selfExp, setSelfExp] = useState('');
+
+    const [usefulnessRating, setUsefulnessRating] = useState(null);
+    const [credibilityRating, setCredibilityRating] = useState(null);
+    const [recommendationRating, setRecommendationRating] = useState(null);
+    const [satisfactionRating, setSatisfactionRating] = useState(null);
+
+    const [fromUser, setFromUser] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const queCtx = useContext(QueContext);
+    const taskCtx = useContext(TaskContext);
+    const explanationRateList = [
     'Very Poor: The explanation is entirely incorrect, incomprehensible, leaving the user completely confused.', 
     'Poor: The explanation is mostly inaccurate, unclear, or incomplete, making it challenging for the user to understand.', 
     'Fair: The explanation is somewhat relevant and clear but may contain some inaccuracies or lack important details.', 
@@ -46,8 +49,12 @@ const RatePrompt = (props) => {
     let explainMessage = '';
     if (role === 'user') {
         explainMessage = `The user entered a prompt: "${prompt}". The user is reviewing how the prompt relates to and help proceed the task. Please provide five short possible explanations for user's intentions with that prompt.`
+        setFromUser(true);
+        setCredibilityRating(-99)
+        console.log(credibilityRating)
     }
     else if (role === 'assistant') {
+        setFromUser(false);
         const previousQ = query(
         chatsCollection,
         where('taskID', '==', taskCtx?.taskID),
@@ -56,7 +63,7 @@ const RatePrompt = (props) => {
         // const previousQ = query(q, orderBy('typingEndTime', 'desc'), startAt(props.promptID), limit(1));
         const prevQuerySnapshot = await getDocs(previousQ);
         const prevPrompt = prevQuerySnapshot.docs[0].data().prompt;
-        explainMessage = `The user entered a prompt: "${prevPrompt}", and ChatGPT responsed: "${prompt}". The user is reviewing how the prompt and response relates to and help proceed the task. Please provide five short possible explanations for how ChatGPT addressed the user's needs.`
+        explainMessage = `The user entered a prompt: "${prevPrompt}", and ChatGPT responsed: "${prompt.slice(0, 2000)}". The user is reviewing how the prompt and response relates to and help proceed the task. Please provide five short possible explanations for how ChatGPT addressed the user's needs.`
         // console.log(prevPrompt)
         }
     const messages=[
@@ -72,7 +79,7 @@ const RatePrompt = (props) => {
     const response = await openai.chat.completions.create({
         model:"gpt-3.5-turbo",
         messages:messages, 
-        max_tokens: 512,
+        max_tokens: 1024,
     })
     const res = JSON.parse(response.choices[0].message.content);
     const tempArray = [];
@@ -85,6 +92,17 @@ const RatePrompt = (props) => {
 }
 
   const handleSubmit = async () => {
+    if (
+        explanationOptions.length > 0 &&
+        explanationSelectedOption !== -1 &&
+        explanationRate !== -1 &&
+        usefulnessRating !== null &&
+        credibilityRating !== null &&
+        recommendationRating !== null &&
+        satisfactionRating !== null
+    )
+    // await handleShowWarning()
+     {
         const shouldProceed = window.confirm("Are you sure you want to submit the form?");
         if (shouldProceed) {
             const formData = {
@@ -126,6 +144,9 @@ const RatePrompt = (props) => {
                 console.error("Error adding document:", error);
             }
         }
+    }else {
+        alert('Please answer all questions before submitting.');
+    }
   };
 
 
@@ -133,11 +154,12 @@ const RatePrompt = (props) => {
     <div className="fixed flex flex-col bg-[#142838] py-12 px-20 h-fit rounded-xl min-w-[30rem] max-h-[85%] overflow-auto space-y-4">
         {/* Generate Explanation Button */}
         <div className="text-white text-center mb-2 font-bold">
-            <h1>Part 1: Explain this prompt or ouput (AI generated explanation)</h1>
+            <h1>Part 1: Explain this prompt or ouput </h1>
+            <h1>(Generate and rate AI explanation)</h1>
         </div>
             <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
             <h1>1. Please click the button and ChatGPT will generate five explanations for the corresponding prompt/response. 
-                Review the option and choose the best explanation. </h1>
+                Review the option and choose the best explanation. *</h1>
             {/* {topicFamiliaritySpecificOptions.length === 0 && submitClicked && <p className="text-red-500 text-sm">required</p>} */}
         
         {!isLoading ? (
@@ -173,7 +195,7 @@ const RatePrompt = (props) => {
         )}
         </div>  
         <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
-            <h1>2. How do you rate the selected evaluation?</h1>
+            <h1>2. How do you rate the selected evaluation? *</h1>
             <div className="flex flex-col pl-2 pr-8 space-y-4 justify-between">
                 {/* Array to generate the radio buttons */}
                 {Array.from({length: 5}).map((_, index) => {
@@ -194,7 +216,7 @@ const RatePrompt = (props) => {
                     })}
             </div>
         
-        <h1>3. If you think the evaluation is poor or very poor, please explain *</h1>
+        <h1>3. If you think the evaluation is poor or very poor, please explain, else input NA </h1>
         <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
             <input 
                 className="w-full bg-transparent outline-none px-2 h-7"
@@ -206,10 +228,10 @@ const RatePrompt = (props) => {
         </div>    
         {/*display a breaking line */}
         <hr className="border-white border-[1px]"></hr>
-        <h1 className="text-white text-center mb-2 font-bold">Part 2: Rate Prompt Questionnaire</h1>
+        <h1 className="text-white text-center mb-2 font-bold">Part 2: Rate Prompt/Output</h1>
         {/* Usefulness Rating */}
         <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
-            <h1>1. How useful was the prompt in guiding ChatGPT's response?</h1>
+            <h1>-- How useful was the prompt in guiding ChatGPT's response? Or, how useful was ChatGPT's output in proceeding the task? *</h1>
             <div className="flex flex-row pl-8 pr-16 justify-between">
                 {/* Array to generate the radio buttons */}
                 {Array.from({ length: 5 }).map((_, index) => {
@@ -232,8 +254,8 @@ const RatePrompt = (props) => {
         </div>
 
         {/* Credibility Rating */}
-        <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
-            <h1>2. How credible was the output provided by ChatGPT?</h1>
+        {!fromUser && <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
+            <h1>-- How credible was the output provided by ChatGPT? *</h1>
             <div className="flex flex-row pl-8 pr-16 justify-between">
                 {/* Array to generate the radio buttons */}
                 {Array.from({ length: 5 }).map((_, index) => {
@@ -254,13 +276,13 @@ const RatePrompt = (props) => {
                 <h1>Extremely Credible</h1>
             </div>
          </div>
-
+        }
         {/* Recommendation Rating */}
         <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
             <h1>
-                3. If this prompt and output will be shared in the online community to
+                -- If this prompt or output will be shared in the online community to
                 help other users with similar questions, how likely are you to
-                recommend your prompts and ChatGPT’s output?
+                recommend your prompts and ChatGPT's output? *
             </h1>
             <div className="flex flex-row pl-8 pr-16 justify-between">
                 {/* Array to generate the radio buttons */}
@@ -285,7 +307,7 @@ const RatePrompt = (props) => {
 
         {/* Satisfaction Rating */}
         <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
-            <h1>4. Rate your satisfaction level with this prompt and its output.</h1>
+            <h1>-- Rate your satisfaction level with the prompt or the output. *</h1>
             <div className="flex flex-row pl-8 pr-16 justify-between">
                 {/* Array to generate the radio buttons */}
                 {Array.from({ length: 5 }).map((_, index) => {

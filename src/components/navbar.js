@@ -63,6 +63,7 @@ const Navbar = (props) => {
                 props.setShowPostTaskQuestionnaire(true)
             }
         }else{
+            props.setShowWarning(true);
             window.confirm('Please annotate (rate) all the prompts marked with red by clicking the three dots and "Rate response" button')
         }
 

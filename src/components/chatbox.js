@@ -19,7 +19,7 @@ import QueContext from '../context/que-context';
 import ReactMarkdown from 'react-markdown';
 import hljs from 'highlight.js';
 
-function ChatBox (){
+function ChatBox (props){
     const [showCommentPopup, setShowCommentPopup] = useState(false)
     const [showMoreActionsPopUp, setShowMoreActionsPopUp] = useState(false)
     const [isPromptRated, setIsPromptRated] = useState(null) // to force a rerender of useEffect to see if a prompt has been rated
@@ -73,13 +73,13 @@ function ChatBox (){
                     },
                     {
                         "role": "user",
-                        "content": `The user entered an instruction prompt: "${prevConversation[0].content}". Please generate five improved prompts by revising the previous prompt: "${prevConversation[0].content}" in terms of clarity. The new generated prompts should be related to this task and topic that can help the user proceed the task. You output must be as a json array of just the questions`
+                        "content": `The user entered an instruction prompt: "${prevConversation[0].content}". Please generate five improved prompts by revising the previous prompt: "${prevConversation[0].content}" in terms of clarity. The new generated prompts should be related to this task and topic that can help the user proceed the task. You output must be as a json array of just the prompts, for example ["promt1", "promt2", "promt3", "promt4", "promt5"]`
                 
                     }
                 ];
                 
 
-                console.log(messages)
+                // console.log(messages)
                 const response = await openai.chat.completions.create({
                     model: "gpt-3.5-turbo",
                     messages: messages,
@@ -126,16 +126,16 @@ function ChatBox (){
                     prevConversation.push(filteredPromptResponseArray[arrLength - 1]);
                     messages.push({
                         "role": "user",
-                        "content": `The user has a previous conversation with you: ### "User": "${prevConversation[0].content}"; "Assistant": "${prevConversation[1].content.slice(0, 2000)}"###. Based on the previous conversation, please generate five follow up questions related to this task and topic that the user is most likely to ask for the next step. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions`
+                        "content": `The user has a previous conversation with you: ### "User": "${prevConversation[0].content}"; "Assistant": "${prevConversation[1].content.slice(0, 2000)}"###. Based on the previous conversation, please generate five follow up questions related to this task and topic that the user is most likely to ask for the next step. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions, for example ["question1", "question2", "question3", "question4", "question5"]`
                     })
                     }
                 else{
                     messages.push({
                         "role": "user",
-                        "content": `Please generate five questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions`
+                        "content": `Please generate five questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions, for example ["question1", "question2", "question3", "question4", "question5"]`
                     })
                 }
-                console.log(messages)
+                // console.log(messages)
                 const response = await openai.chat.completions.create({
                     model: "gpt-3.5-turbo",
                     messages: messages,
@@ -156,9 +156,14 @@ function ChatBox (){
 
     // to handle automatic scrolling to the end
     useEffect(() => {
-        window.scrollTo(0, document.documentElement.scrollHeight);
-    }, [getPromptSuggestions, promptResponseArray, queCtx.formData]);
+        // Check if the user is at the bottom of the page
+        const isAtBottom = (window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 100;  // 5 is a small threshold to account for minor deviations
     
+        if (isAtBottom) {
+            window.scrollTo(0, document.documentElement.scrollHeight);
+        }
+    }, [getPromptSuggestions, promptResponseArray, queCtx.formData]);
+        
     // To get the chat history
     useEffect(() => {
         const fetchChatHistory = async () => {
@@ -209,7 +214,7 @@ function ChatBox (){
                 messages = [
                     {
                         "role": "system",
-                        "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better. Provide you answer in a markdown format.`
+                        "content": `You are a teacher help the user ${taskType +' about '+ taskTopic}. The user has a familiarity degree of (${topicFamiliaritySpecificSelectedOption + 1} out of 5), stating ${topicFamiliaritySpecificOptions[topicFamiliaritySpecificSelectedOption]}". The user think the complexity of this task (${expectedComplexitySpecificSelectedOption + 1} out of 5), ${expectedComplexitySpecificOptions[expectedComplexitySpecificSelectedOption]}. The user expects to spend ${expectedSpendingTime} to ${expectedOutcome}. Given the familiarity level, complexity level, and user expectations, adjust your answers so that the user can understand better. Provide you answer in a markdown format. Use styles properly, including but not limited to heading, bold, italics, underline to struture the text better and improve the readability.`
                     },
             ];}
             else{
@@ -351,6 +356,7 @@ function ChatBox (){
                         promptID = {message.id}
                         setIsPromptRated={setIsPromptRated}
                         text={message.content}
+                        ratingID={message?.ratingID}
                         stringText={message.content}
                         showCommentPopup={showCommentPopup}
                         setShowCommentPopup={setShowCommentPopup}
@@ -359,6 +365,7 @@ function ChatBox (){
                         bgColor={bgObj.user}
                         profile_image={user_profile}
                         isStarred={isStarred}
+                        shouldShowWarning={props.showWarning}
                     />
                 ) : (
                     <Prompt
@@ -376,6 +383,7 @@ function ChatBox (){
                         bgColor={bgObj.ai}
                         profile_image={ai_profile}
                         isStarred={isStarred}
+                        shouldShowWarning={props.showWarning}
                     />
                 )}
                 </div>

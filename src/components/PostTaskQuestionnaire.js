@@ -165,7 +165,7 @@ const PostTaskQuestionnaire = (props) => {
             {/* Questions */}
             <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
                 <div className="flex flex-row items-center space-x-2">
-                    <h1>1. How much outcome did you obtain through this task?</h1>
+                    <h1>1. How much outcome did you obtain through this task? *</h1>
                     {gainConfirmation === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
                 </div>
                 <div className="flex flex-row pl-8 pr-16 justify-between">
@@ -188,7 +188,7 @@ const PostTaskQuestionnaire = (props) => {
 
                 {/* Question 2 */}
                 <div className="flex flex-row items-center space-x-2">
-                    <h1>2. How much effort did it take for you to obtain the outcome through this task?</h1>
+                    <h1>2. How much effort did it take for you to obtain the outcome through this task? *</h1>
                     {costConfirmation === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
                 </div>
                 <div className="flex flex-row pl-8 pr-16 justify-between">
@@ -211,7 +211,7 @@ const PostTaskQuestionnaire = (props) => {
 
                 {/* Question 3 */}
                 <div className="flex flex-row items-center space-x-2">
-                    <h1>3. Rate your satisfaction level with this task.</h1>
+                    <h1>3. Rate your satisfaction level with this task. *</h1>
                     {satisfaction === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
                 </div>
 
@@ -237,7 +237,7 @@ const PostTaskQuestionnaire = (props) => {
 
                 {/* Question 4 */}
                 <div className="flex flex-row items-center space-x-2">
-                    <h1>4. If this task content will be shared in the online community to help other users with similar tasks, how likely is it for you to recommend your prompts and ChatGPT’s output?</h1>
+                    <h1>4. If this task content will be shared in the online community to help other users with similar tasks, how likely is it for you to recommend your prompts and ChatGPT's output? *</h1>
                     {recommendation === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
                 </div>
                 <div className="flex flex-row pl-8 pr-16 justify-between">
@@ -258,7 +258,7 @@ const PostTaskQuestionnaire = (props) => {
                     <h1>Very likely</h1>
                 </div>
                 <div className="flex flex-row items-center space-x-2">
-                    <h1>5. Encountered problems</h1>
+                    <h1>5. Encountered problems *</h1>
                     {encounteredProblems.length < 1 && submitClicked && <p className="text-red-500 text-sm">required. Select at least 1</p>}
                 </div>
                 {/* Question 5 */}
@@ -291,7 +291,7 @@ const PostTaskQuestionnaire = (props) => {
                     </div>
                 </div>
                 {/* Question 6 */}
-                <h1>6. Other feedback</h1>
+                <h1>6. Other feedback (None if no other feedback) *</h1>
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
                     <input 
                         className="w-full bg-transparent outline-none px-2 h-7"

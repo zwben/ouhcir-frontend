@@ -186,10 +186,11 @@ useEffect(() => {
     };
             
     return(
-        <div className='flex flex-col bg-[#142838] py-12 px-16 h-fit rounded-xl w-1/2'>
+        <div className='flex flex-col bg-[#142838] py-4 px-8 h-fit rounded-xl w-1/3'>
             <div className='text-white'>
-                <h3 className='text-center text-lg'>Think Aloud Protocol</h3>
-                <p className='italic'>
+                <details>
+                <summary className='text-center text-lg'>Think Aloud Protocol (click to expand)</summary>
+                <p className='italic text-sm'>
                     When interacting with ChatGPT, we would appreciate it if you could verbalize your thoughts and reactions.
                     The goal is to capture your impressions and insights as you write your questions (prompts) and read the outputs.
                     </p>
@@ -201,24 +202,22 @@ useEffect(() => {
                 <p>• Express your thoughts on the quality and relevance of the generated responses.</p>
                 <p>• Highlight any surprising or insightful aspects of the outputs.</p>
                 <p>• Identify areas where the responses may be helpful or need improvement.</p>
-                <p className='italic mt-4'>Remember, we value your honest feedback and suggestions. Your recordings will be treated confidentially and used only for research and improvement purposes. Your input will help us enhance the ChatGPT experience.</p>
-
+                <p className='italic mt-4 text-sm'>Remember, we value your honest feedback and suggestions. Your recordings will be treated confidentially and used only for research and improvement purposes. Your input will help us enhance the ChatGPT experience.</p>
+                </details>
                 <div className="flex justify-center text-lg mt-6">{formatTime(elapsedTime)}</div>
             </div>
 
             <div className="flex flex-row justify-between mt-4">
-                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={startRecording}>Start Recording</button>
-                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={stopRecording}> End Recording</button>
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/4" onClick={startRecording}>Start</button>
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/4" onClick={stopRecording}>Pause</button>
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/4" onClick={playRecording}>Play</button>
             </div>
+
 
             <div className="flex flex-row justify-between mt-4">
-                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={discardRecording}>Discard</button>
-                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={playRecording}>Play Recording</button>
-            </div>
-
-            <div className="flex flex-row justify-between mt-12">
-                <button className="underline text-white w-1/3" onClick={handleClose}> Close </button>
-                <button className="bg-white px-6 py-2 rounded-2xl w-1/3" onClick={saveRecordingDetails}> Upload </button>
+                <button className="underline text-white w-1/4" onClick={handleClose}> Close </button>
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/4" onClick={discardRecording}>Discard</button>
+                <button className="bg-white px-6 py-2 rounded-2xl w-1/4" onClick={saveRecordingDetails}> Upload </button>
             </div>
         </div>
 

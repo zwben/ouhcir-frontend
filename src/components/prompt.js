@@ -15,7 +15,9 @@ const Prompt = (props) => {
     const [showRatePrompt, setShowRatePrompt] = useState(false)
     const [showCommentPopup, setShowCommentPopup] = useState(false)
     const [showMoreActionsPopUp, setShowMoreActionsPopUp] = useState(false)
+    const [showWarning, setShowWarning] = useState(false);
     const promptID = props.promptID
+
     const handleStarred = () => {
         if (isStarred){
             setIsStarred(false)
@@ -26,6 +28,12 @@ const Prompt = (props) => {
             setIsStarred(true)
         }
     }
+
+    // Update the warning to rely on the showWarning state
+    useEffect(() => {
+        setShowWarning(props.shouldShowWarning);
+    }, [props.shouldShowWarning]);
+
     return(
         <div className={"flex flex-row space-x-4 justify-center align-top p-4 pl-14 " + props.bgColor} >
             <div className='w-full xl:max-w-[55%] lg:max-w-[60%]'>
@@ -58,7 +66,7 @@ const Prompt = (props) => {
                     <img className='w-6' src={more_icon} alt=""/>
                 </button>
             </div>
-            {props.role === 'assistant' && !props.ratingID && 
+            {!props.ratingID && showWarning &&
                 <p className="absolute top-100% transform -translate-y-5 right-20 text-red-400 text-sm">Not rated. Click ... button</p>
             }
             {showCommentPopup && <div className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center'>
