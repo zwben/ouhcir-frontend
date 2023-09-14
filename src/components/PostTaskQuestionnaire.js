@@ -103,7 +103,12 @@ const PostTaskQuestionnaire = (props) => {
     const handleSubmit = async () => {
         setSubmitClicked(true)
         // Check if all questions are answered
-        if (isFormValid) {
+        if (gainConfirmation !== -1 &&
+            costConfirmation !== -1 &&
+            satisfaction !== -1 &&
+            recommendation !== -1 &&
+            (encounteredProblems.length > 0 || encounteredProblems.includes("No challenges") || otherChallenges.trim() !== '')
+            ) {
             // Confirm if the user actually wants to save
             const shouldProceed = window.confirm('Are you sure you want to submit the form?');
             if (shouldProceed) {
@@ -165,7 +170,7 @@ const PostTaskQuestionnaire = (props) => {
             {/* Questions */}
             <div className="flex flex-col text-white space-y-4 max-w-[28rem]">
                 <div className="flex flex-row items-center space-x-2">
-                    <h1>1. How much outcome did you obtain through this task? *</h1>
+                    <h1>1. How much useful information did you obtain through your interaction with the system? *</h1>
                     {gainConfirmation === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
                 </div>
                 <div className="flex flex-row pl-8 pr-16 justify-between">
@@ -188,7 +193,7 @@ const PostTaskQuestionnaire = (props) => {
 
                 {/* Question 2 */}
                 <div className="flex flex-row items-center space-x-2">
-                    <h1>2. How much effort did it take for you to obtain the outcome through this task? *</h1>
+                    <h1>2. How much effort did it take for you to obtain the outcome through your interaction with the system? *</h1>
                     {costConfirmation === -1 && submitClicked && <p className="text-red-500 text-sm">required</p>}
                 </div>
                 <div className="flex flex-row pl-8 pr-16 justify-between">

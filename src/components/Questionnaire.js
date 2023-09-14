@@ -14,7 +14,7 @@ const Questionnaire = (props) => {
     const [submitClicked, setSubmitClicked] = useState(false) // To show required field after submit button is pressed
     // labels
     const [taskTopic,setTaskTopic] = useState('')
-    const [promptsNum, setPromptsNum] = useState('') 
+    const [promptsNum, setPromptsNum] = useState(-1) 
     const [otherTaskType, setOtherTaskType] = useState('')
     const [otherExpectedOutcome, setOtherExpectedOutcome] = useState('')
     const [other, setOther] = useState('')
@@ -60,7 +60,16 @@ const Questionnaire = (props) => {
     const handleSubmit = async () => {
         setSubmitClicked(true)
         // Check if all questions are answered
-        if (isFormValid) {
+        if (taskTopic !== '' &&
+        topicFamiliaritySpecificSelectedOption !== -1 &&
+        taskTypeCheckboxes.length > 0 &&
+        expectedComplexitySpecificSelectedOption !== -1 &&
+        expectationSelectedOption !== -1 &&
+        promptsNum !== -1 &&
+        timeExpectationSelectedOption !== -1 &&
+        answerQualitySelectedOption !== -1 &&
+        promptFormulateSelectedOption !== -1
+        ) {
             // Confirm is the user actually wants to save
             const shouldProceed = window.confirm('Are you sure you want to submit the form?');
             if(shouldProceed){
@@ -110,11 +119,11 @@ const Questionnaire = (props) => {
     const handleShowWarning = () => {
         if (
             taskTopic !== '' &&
-            topicFamiliaritySpecificSelectedOption !== -1 &&
-            taskTypeCheckboxes.length > 0 &&
-            expectedComplexitySpecificSelectedOption !== -1 &&
-            expectationSelectedOption !== -1 &&
-            promptsNum !== '' &&
+            // topicFamiliaritySpecificSelectedOption !== -1 &&
+            // taskTypeCheckboxes.length > 0 &&
+            // expectedComplexitySpecificSelectedOption !== -1 &&
+            // expectationSelectedOption !== -1 &&
+            promptsNum !== -1 &&
             timeExpectationSelectedOption !== -1 &&
             answerQualitySelectedOption !== -1 &&
             promptFormulateSelectedOption !== -1
@@ -230,6 +239,7 @@ const Questionnaire = (props) => {
                                             value={option}
                                             className={`w-4 h-4 rounded-full border-[1px] border-white ${topicFamiliaritySpecificSelectedOption === index ? "bg-white" : ""}`}
                                             onClick={() => setTopicFamiliaritySpecificSelectedOption(index)}
+                                            onChange={handleShowWarning}
                                         ></button>
                                     </div>
                                     <label className="ml-2 text-white">
@@ -252,7 +262,8 @@ const Questionnaire = (props) => {
                         <input
                             type="checkbox"
                             checked={taskTypeCheckboxes.includes(taskName)}
-                            onChange={() => handleCheckboxChange(taskName)}
+                            onChange={() => {handleCheckboxChange(taskName);
+                                            handleShowWarning();}}
                             className="form-checkbox mr-2 w-5 h-5 rounded bg-transparent border-[1px] border-white focus:ring-transparent focus:border-none"
                         />
                         <label  htmlFor={`checkbox-${index}`} className="text-white"> 
@@ -264,7 +275,8 @@ const Questionnaire = (props) => {
                         <input 
                             className="w-full bg-transparent outline-none px-2 h-7"
                             onChange={(e) => {
-                                setOtherTaskType(e.target.value)
+                                setOtherTaskType(e.target.value);
+                                handleShowWarning()
                             }}></input>
                     </div>
                 </div>
@@ -290,6 +302,7 @@ const Questionnaire = (props) => {
                                             value={option}
                                             className={`w-4 h-4 rounded-full border-[1px] border-white ${expectedComplexitySpecificSelectedOption === index ? "bg-white" : ""}`}
                                             onClick={() => setExpectedComplexitySpecificSelectedOption(index)}
+                                            onChange={handleShowWarning}
                                         ></button>
                                     </div>
                                     <label className="ml-2 text-white">
@@ -314,7 +327,8 @@ const Questionnaire = (props) => {
                                     className={`w-4 h-4 rounded-full border-[1px] border-white ${expectationSelectedOption === index ? "bg-white" : ""}`}
                                     onClick={() => {
                                         setExpectationSelectedOption(index)
-                                    }}>
+                                    }}
+                                    onChange={handleShowWarning}>
                                 </button>
                                 <label>{expectationTypes[index]}</label>
                             </div>
@@ -323,7 +337,8 @@ const Questionnaire = (props) => {
                     <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
                         <input 
                             className="w-full bg-transparent outline-none px-2 h-7"
-                            onChange={(e)=>{setOtherExpectedOutcome(e.target.value)}}>    
+                            onChange={(e)=>{setOtherExpectedOutcome(e.target.value);
+                                handleShowWarning()}}>    
                         </input>
                     </div>
                 </div>
@@ -332,7 +347,7 @@ const Questionnaire = (props) => {
                     <h1>6. How many prompts do you expect to formulate or reformulate prompt to achieve your expected outcome?  *</h1>
                     {!promptsNum && submitClicked && <p className="text-red-500 text-sm">required</p>}
                 </div>
-                <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
+                <div className="flex flex-row justify-between rounded-md bg-[#2F4454] w-20 py-1 mx-4">
                     <input 
                         className="w-full bg-transparent outline-none px-2 h-7" 
                         type="number"
@@ -355,7 +370,8 @@ const Questionnaire = (props) => {
                                     className={`w-4 h-4 rounded-full border-[1px] border-white ${timeExpectationSelectedOption === index ? "bg-white" : ""}`}
                                     onClick={() => {
                                         setTimeExpectationSelectedOption(index)
-                                    }}>
+                                    }}
+                                    onChange={handleShowWarning}>
                                 </button>
                                 <label>{timeExpectationList[index]}</label>
                             </div>
@@ -378,7 +394,8 @@ const Questionnaire = (props) => {
                                         className={`w-4 h-4 rounded-full border-[1px] border-white ${answerQualitySelectedOption === index ? "bg-white" : ""}`}
                                         onClick={() => {
                                             setAnswerQualitySelectedOption(index)
-                                        }}>
+                                        }}
+                                        onChange={handleShowWarning}>
                                     </button>
                                 </div>
                                 <label>{answerQualityList[index]}</label>
@@ -401,8 +418,10 @@ const Questionnaire = (props) => {
                                         key={index}
                                         className={`w-4 h-4 rounded-full border-[1px] border-white ${promptFormulateSelectedOption === index ? "bg-white" : ""}`}
                                         onClick={() => {
-                                            setPromptFormulateSelectedOption(index)
-                                        }}>
+                                            setPromptFormulateSelectedOption(index);
+                                            handleShowWarning()
+                                        }}
+                                        >
                                     </button>
                                 </div>
                                 <label>{promptFormulateTimeList[index]}</label>
@@ -412,6 +431,7 @@ const Questionnaire = (props) => {
                 </div>
                 {/* Question 10 */}
                 <h1>10. What other cost or effort do you expect during the task? (None if no other expectations) *</h1>
+                {!other && submitClicked && <p className="text-red-500 text-sm">required</p>}
                 <div className="flex flex-row justify-between rounded-md bg-[#2F4454]  py-1 mx-4">
                     <input 
                         className="w-full bg-transparent outline-none px-2 h-7"

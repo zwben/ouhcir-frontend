@@ -73,7 +73,7 @@ function ChatBox (props){
                     },
                     {
                         "role": "user",
-                        "content": `The user entered an instruction prompt: "${prevConversation[0].content}". Please generate five improved prompts by revising the previous prompt: "${prevConversation[0].content}" in terms of clarity. The new generated prompts should be related to this task and topic that can help the user proceed the task. You output must be as a json array of just the prompts, for example ["promt1", "promt2", "promt3", "promt4", "promt5"]`
+                        "content": `The user entered an instruction prompt: "${prevConversation[0].content}". Please generate three improved prompts by revising the previous prompt: "${prevConversation[0].content}" in terms of clarity. The new generated prompts should be related to this task and topic that can help the user proceed the task. You output must be as a json array of just the prompts, for example ["promt1", "promt2", "promt3"]`
                 
                     }
                 ];
@@ -126,13 +126,13 @@ function ChatBox (props){
                     prevConversation.push(filteredPromptResponseArray[arrLength - 1]);
                     messages.push({
                         "role": "user",
-                        "content": `The user has a previous conversation with you: ### "User": "${prevConversation[0].content}"; "Assistant": "${prevConversation[1].content.slice(0, 2000)}"###. Based on the previous conversation, please generate five follow up questions related to this task and topic that the user is most likely to ask for the next step. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions, for example ["question1", "question2", "question3", "question4", "question5"]`
+                        "content": `The user has a previous conversation with you: ### "User": "${prevConversation[0].content}"; "Assistant": "${prevConversation[1].content.slice(0, 2000)}"###. Based on the previous conversation, please generate three follow up questions related to this task and topic that the user is most likely to ask for the next step. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions, for example ["question1", "question2", "question3"]`
                     })
                     }
                 else{
                     messages.push({
                         "role": "user",
-                        "content": `Please generate five questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions, for example ["question1", "question2", "question3", "question4", "question5"]`
+                        "content": `Please generate three questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions, for example ["question1", "question2", "question3"]`
                     })
                 }
                 // console.log(messages)
@@ -294,7 +294,7 @@ function ChatBox (props){
                 <div
                     value={question} 
                     key={'q-div-' + index} 
-                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-[11px] max-w-[223px] text-[#142838]' 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm w-1/4 text-[#142838]' 
                     onClick={() => handleQuestionClicked(question)}
                   >
                     <p>{question}</p>
@@ -308,7 +308,7 @@ function ChatBox (props){
                 <div
                     value={question} 
                     key={'q-div-' + index} 
-                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-[11px] max-w-[223px] text-[#142838]' 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm w-1/4 text-[#142838]' 
                     onClick={() => handleQuestionClicked(question)}
                   >
                     <p>{question}</p>
@@ -323,22 +323,41 @@ function ChatBox (props){
     };
     
 
+    // const renderers = {
+    //     code({ node, inline, className, children, ...props }) {
+    //         const match = /language-(\w+)/.exec(className || '');
+    //         const language = match && match[1] ? match[1] : "";
+            
+    //         const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
+    //         const highlighted = hljs.highlight(validLanguage, children[0]).value;
+
+    //         if (inline) {
+    //             return <code className={className} {...props} dangerouslySetInnerHTML={{ __html: highlighted }} />;
+    //         }
+    //         return <pre className={className} {...props}><code dangerouslySetInnerHTML={{ __html: highlighted }} /></pre>;
+    //     }
+    // };
+
     const renderers = {
-        code({ node, inline, className, children, ...props }) {
+        h1: ({ node, children, ...props }) => <h1 className="text-3xl font-bold mb-4" {...props}>{children}</h1>,
+        p: ({ node, children, ...props }) => <p className="text-base text-white-700 my-4" {...props}>{children}</p>,
+        div: ({ node, children, ...props }) => <div className="mb-4" {...props}>{children}</div>,
+        ul: ({ node, children, ...props }) => <ul className="list-disc ml-5 my-2" {...props}>{children}</ul>,
+        ol: ({ node, children, ...props }) => <ol className="list-decimal ml-5 my-2" {...props}>{children}</ol>,
+        code: ({ node, inline, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || '');
             const language = match && match[1] ? match[1] : "";
             
             const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
             const highlighted = hljs.highlight(validLanguage, children[0]).value;
-
+    
             if (inline) {
                 return <code className={className} {...props} dangerouslySetInnerHTML={{ __html: highlighted }} />;
             }
             return <pre className={className} {...props}><code dangerouslySetInnerHTML={{ __html: highlighted }} /></pre>;
         }
     };
-
-
+    
 
 
     // Create an array of message components
