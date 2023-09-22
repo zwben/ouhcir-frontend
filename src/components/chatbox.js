@@ -73,7 +73,7 @@ function ChatBox (props){
                     },
                     {
                         "role": "user",
-                        "content": `The user entered an instruction prompt: "${prevConversation[0].content}". Please generate three improved prompts by revising the previous prompt: "${prevConversation[0].content}" in terms of clarity. The new generated prompts should be related to this task and topic that can help the user proceed the task. You output must be as a json array of just the prompts, for example ["promt1", "promt2", "promt3"]`
+                        "content": `The user entered an instruction prompt: "${prevConversation[0].content}". Please generate three improved prompts by revising the previous prompt: "${prevConversation[0].content}" in terms of clarity. The new generated prompts should be related to this task and topic that can help the user proceed the task. You output must be as a json array of just the prompts, which can be parsed by json, for example ["promt1", "promt2", "promt3"]`
                 
                     }
                 ];
@@ -249,6 +249,7 @@ function ChatBox (props){
                 }                
                 setPromptResponseArray([...array])  // This will trigger a re-render and the renderer will process the updated response
             }
+
             // const message = completion.choices[0].message
             const typingEndTime = new Date()
             // Save the response to Firestore database
@@ -258,6 +259,7 @@ function ChatBox (props){
             }
         } catch (error) {
             console.error('Error fetching data:', error);
+            window.alert('Warning: "The previous conversation has reached the token limit, please end the task. If you want to continue the same task, you can start a new one.')
         }
         setIsLoading(false)
     }
@@ -294,7 +296,7 @@ function ChatBox (props){
                 <div
                     value={question} 
                     key={'q-div-' + index} 
-                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm w-1/4 text-[#142838] opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm overflow-hidden hover:overflow-y-auto w-1/4 hover:w-1/3 h-[4em] hover:h-[5em] text-[#142838] opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
                     onClick={() => handleQuestionClicked(question)}
                   >
                     <p>{question}</p>
@@ -308,7 +310,7 @@ function ChatBox (props){
                 <div
                     value={question} 
                     key={'q-div-' + index} 
-                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm w-1/4 text-[#142838] opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm overflow-hidden hover:overflow-y-auto w-1/4 hover:w-1/3 h-[4em] hover:h-[5em] text-[#142838] opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
                     onClick={() => handleQuestionClicked(question)}
                   >
                     <p>{question}</p>
