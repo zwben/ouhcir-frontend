@@ -85,7 +85,7 @@ function ChatBox (props){
                     messages: messages,
                     max_tokens: 512,
                 });
-                // console.log(response)
+                // console.log(response.choices[0].message.content)
                 const res = JSON.parse(response.choices[0].message.content);
                 setPromptSuggestions(res)
                 } catch(e){
@@ -294,7 +294,7 @@ function ChatBox (props){
                 <div
                     value={question} 
                     key={'q-div-' + index} 
-                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm w-1/4 text-[#142838]' 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm w-1/4 text-[#142838] opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
                     onClick={() => handleQuestionClicked(question)}
                   >
                     <p>{question}</p>
@@ -308,7 +308,7 @@ function ChatBox (props){
                 <div
                     value={question} 
                     key={'q-div-' + index} 
-                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm w-1/4 text-[#142838]' 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm w-1/4 text-[#142838] opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
                     onClick={() => handleQuestionClicked(question)}
                   >
                     <p>{question}</p>

@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 // eslint-disable-next-line no-unused-vars
-import { collection, addDoc, query, where, getDocs, updateDoc, orderBy, endAt, limit } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, updateDoc, orderBy, startAfter, limit } from "firebase/firestore";
 import { db } from "../firebase-config";
 import QueContext from '../context/que-context';
 import TaskContext from '../context/task-context';
@@ -46,20 +46,23 @@ const RatePrompt = (props) => {
     const querySnapshot = await getDocs(currentQ);
     const role = querySnapshot.docs[0].data().role;
     const prompt = querySnapshot.docs[0].data().prompt;
+    const lastTime = querySnapshot.docs[0].data().typingEndTime;
     let explainMessage = '';
     if (role === 'user') {
         explainMessage = `The user entered a prompt: "${prompt}". The user is reviewing how the prompt relates to and help proceed the task. Please provide five short possible explanations for user's intentions with that prompt.`
         setFromUser(true);
         setCredibilityRating(-99)
-        console.log(credibilityRating)
+        // console.log(credibilityRating)
     }
     else if (role === 'assistant') {
         setFromUser(false);
         const previousQ = query(
-        chatsCollection,
-        where('taskID', '==', taskCtx?.taskID),
-        orderBy('typingEndTime', 'asc'),
-        endAt(props.promptID), limit(1));
+            chatsCollection,
+            where('taskID', '==', taskCtx?.taskID),
+            orderBy('typingEndTime', 'desc'),
+            startAfter(lastTime),
+            limit(1)
+        );   
         // const previousQ = query(q, orderBy('typingEndTime', 'desc'), startAt(props.promptID), limit(1));
         const prevQuerySnapshot = await getDocs(previousQ);
         const prevPrompt = prevQuerySnapshot.docs[0].data().prompt;
