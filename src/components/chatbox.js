@@ -73,7 +73,7 @@ function ChatBox (props){
                     },
                     {
                         "role": "user",
-                        "content": `The user entered an instruction prompt: "${prevConversation[0].content}". Please generate three improved prompts by revising the previous prompt: "${prevConversation[0].content}" in terms of clarity. The new generated prompts should be related to this task and topic that can help the user proceed the task. You output must be as a json array of just the prompts, which can be parsed by json, for example ["promt1", "promt2", "promt3"]`
+                        "content": `The user entered an instruction prompt: "${prevConversation[0].content}". Please generate three improved prompts by revising the previous prompt: "${prevConversation[0].content}" in terms of clarity. The new generated prompts should be related to this task and topic that can help the user proceed the task. You output must be formatted as a json array of just the prompts, which can be parsed by json, for example ["promt1", "promt2", "promt3"]`
                 
                     }
                 ];
@@ -126,13 +126,13 @@ function ChatBox (props){
                     prevConversation.push(filteredPromptResponseArray[arrLength - 1]);
                     messages.push({
                         "role": "user",
-                        "content": `The user has a previous conversation with you: ### "User": "${prevConversation[0].content}"; "Assistant": "${prevConversation[1].content.slice(0, 2000)}"###. Based on the previous conversation, please generate three follow up questions related to this task and topic that the user is most likely to ask for the next step. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions, for example ["question1", "question2", "question3"]`
+                        "content": `The user has a previous conversation with you: ### "User": "${prevConversation[0].content}"; "Assistant": "${prevConversation[1].content.slice(0, 2000)}"###. Based on the previous conversation, please generate three follow up questions related to this task and topic that the user is most likely to ask for the next step. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be formatted as a json array of just the questions, which can be parsed by json, for example ["question1", "question2", "question3"]`
                     })
                     }
                 else{
                     messages.push({
                         "role": "user",
-                        "content": `Please generate three questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be as a json array of just the questions, for example ["question1", "question2", "question3"]`
+                        "content": `Please generate three questions related to this task and topic that the user is most likely to ask. You need to consider the probability of whether the user may ask each question and arrange the questions from the highest probability to the lowest. You output must be formatted as a json array of just the questions, which can be parsed by json, for example ["question1", "question2", "question3"]`
                     })
                 }
                 // console.log(messages)
@@ -227,7 +227,7 @@ function ChatBox (props){
             // console.log(messages)
             const typingStartTime = new Date()
             const completion = await openai.chat.completions.create({
-                    model: "gpt-3.5-turbo",
+                    model: "gpt-3.5-turbo-16k",
                     messages: messages,
                     stream: true,
                 });
@@ -296,7 +296,7 @@ function ChatBox (props){
                 <div
                     value={question} 
                     key={'q-div-' + index} 
-                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm overflow-hidden hover:overflow-y-auto w-1/4 hover:w-1/3 h-[4em] hover:h-[5em] text-[#142838] opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm overflow-hidden hover:overflow-y-auto w-1/4 hover:w-1/3 h-[4em] hover:h-[5em] text-[#142838] flex items-center opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
                     onClick={() => handleQuestionClicked(question)}
                   >
                     <p>{question}</p>
@@ -310,7 +310,7 @@ function ChatBox (props){
                 <div
                     value={question} 
                     key={'q-div-' + index} 
-                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm overflow-hidden hover:overflow-y-auto w-1/4 hover:w-1/3 h-[4em] hover:h-[5em] text-[#142838] opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
+                    className='bg-[#D9D9D9] px-2 py-2 rounded-md cursor-pointer text-sm overflow-hidden hover:overflow-y-auto w-1/4 hover:w-1/3 h-[4em] hover:h-[5em] text-[#142838] flex items-center opacity-[0.5] hover:opacity-[1] transition-all duration-300' 
                     onClick={() => handleQuestionClicked(question)}
                   >
                     <p>{question}</p>
