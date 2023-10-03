@@ -90,7 +90,9 @@ const Navbar = (props) => {
                 <div className="flex flex-col mt-4">
                     {!taskCtx.taskID && 
                         <label
-                            className="text-red-500 py-1 pr-1">No task started. Your interactions will not be saved properly. Please start a task</label>}
+                            className="text-red-500 py-1 pr-1">No task started. Your interactions will not be saved properly. Please start a task.<br></br>
+                            You can use this <a href="https://forms.gle/kARDmeaKaqD9r2ea9" target="blank" className="underline">LINK</a> to report your task plans.<br></br>
+                            After completing all tasks, use this <a href="https://ouhcir.youcanbook.me/" target="blank" className="underline">LINK</a> to book an interview session.</label>}
                     {taskCtx.taskID && <div className="flex flex-row justify-between rounded-md bg-[#2F4454] mr-9 px-4 py-1">
                         <label className="w-[12rem] outline-none" contentEditable={isTaskNameEditable} ref={taskNameLabelRef}>{taskName}</label>
                         {isTaskNameEditable && 
