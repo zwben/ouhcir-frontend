@@ -77,3 +77,6 @@ What you need to know:
 - Open AI node.js library
 - Firebase services 
 
+### Platform interface
+
+![interface](public\interface.png)
